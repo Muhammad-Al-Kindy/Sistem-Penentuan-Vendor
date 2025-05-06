@@ -21,8 +21,14 @@
         </main>
     </div>
 
-    <!-- JS TOGGLE -->
     <script src="{{ asset('js/navbar.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/confirmation.js') }}"></script>
+    <script src="{{ Vite::asset('resources/js/app.js') }}"></script>
+    @if(session('success'))
+    <script src="{{ asset('js/sucess.js') }}">
+    </script>
+    @endif
 
 </body>
 </html>

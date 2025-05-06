@@ -7,13 +7,19 @@
     <div class="bg-white shadow-md rounded p-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold">Data Kriteria</h2>
-        <a href="#" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-          <i class="ri-add-line mr-1"></i> Tambah
-        </a>
+
       </div>
 
       <div class="mb-4">
-        <input type="text" placeholder="Search" class="w-1/3 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400">
+        <!-- Search Form -->
+    <form method="GET" action="{{ route('kriteria.index') }}" class="mb-4">
+        <input type="text" name="search" value="{{ request('search') }}"
+               placeholder="Search kriteria..."
+               class="w-1/3 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400">
+        <button type="submit" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          🔍 Cari
+        </button>
+      </form>
       </div>
 
       <div class="overflow-x-auto">
@@ -27,51 +33,34 @@
             </tr>
           </thead>
           <tbody>
-            {{-- @foreach($kriterias as $index => $kriteria) --}}
+            @foreach($kriterias as $index => $kriteria)
             <tr class="odd:bg-yellow-700 even:bg-yellow-600">
-                <td class="px-4 py-2 text-right">1</td>
-                <td class="px-4 py-2 text-right">Kualitas</td>
-                <td class="px-4 py-2 text-right">0.4</td>
+                <td class="px-4 py-2 text-right">{{ $kriteria ->idKriteria}}</td>
+                <td class="px-4 py-2 text-right">{{ $kriteria->namaKriteria }}</td>
+                <td class="px-4 py-2 text-right">{{ $kriteria->bobot }}</td>
               <td class="px-4 py-2 text-center">
                 <div class="flex justify-center gap-2">
-                  <a href="#" class="bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded text-sm">
-                    ✏️ Edit
-                  </a>
-                  <form action="#" method="POST" onsubmit="return confirm('Hapus data ini?');">
+                    <a href="{{ route('subkriteria.index', ['kriteriaId' => $kriteria->idKriteria]) }}" class="bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded text-sm">
+                        ✏️ Detail
+                      </a>
+                  {{-- <form id="delete-form-{{ $kriteria->idKriteria }}" action="{{ route('kriteria.destroy', $kriteria->idKriteria) }}" method="POST" class="inline">
                     @csrf
-                    @method('DELETE')
-                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                    <button type="button" onclick="confirmDelete({{ $kriteria->idKriteria }})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
                       🗑 Hapus
                     </button>
-                  </form>
+                  </form> --}}
                 </div>
               </td>
             </tr>
-            <tr class="odd:bg-yellow-700 even:bg-yellow-600">
-                <td class="px-4 py-2 text-right">1</td>
-                <td class="px-4 py-2 text-right">Kualitas</td>
-                <td class="px-4 py-2 text-right">0.4</td>
-              <td class="px-4 py-2 text-center">
-                <div class="flex justify-center gap-2">
-                  <a href="#" class="bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded text-sm">
-                    ✏️ Edit
-                  </a>
-                  <form action="#" method="POST" onsubmit="return confirm('Hapus data ini?');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
-                      🗑 Hapus
-                    </button>
-                  </form>
-                </div>
-              </td>
-            </tr>
-            {{-- @endforeach --}}
+            @endforeach
           </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+       </table>
+       <div class="mt-4">
+         {{ $kriterias->links() }}
+       </div>
+     </div>
+   </div>
+ </div>
 
 
 @endsection

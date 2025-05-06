@@ -9,6 +9,8 @@ class Kriteria extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'idKriteria';
+
     public $timestamps = false;
 
     protected $fillable =['namaKriteria','bobot'];

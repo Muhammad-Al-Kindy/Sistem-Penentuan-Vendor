@@ -1,16 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\KriteriaController;
+use App\Http\Controllers\SubKriteriaController;
 
-use App\Http\Controllers\StudentController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\EmployeController;
+Route::get('/', [KriteriaController::class, 'index'])->name('home');
+Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria.index');
+// Route::get('/kriteria/tambah', [KriteriaController::class, 'tambah_kriteria'])->name('kriteria.tambah_kriteria');
+// Route::post('/kriteria/{id}', [KriteriaController::class, 'destroy'])->name('kriteria.destroy');
 
-
-Route::get('/', function(){
-    return view('kriteria.index');
-})->name('home');
-
+Route::get('/subkriteria', [SubKriteriaController::class, 'index'])->name('subkriteria.index');
+Route::get('/subkriteria/create/{kriteriaId}', [SubKriteriaController::class, 'create'])->name('subkriteria.create');
+Route::post('/subkriteria/submit', [SubKriteriaController::class, 'store'])->name('subkriteria.submit');
 // // student routes
 // Route::get('/students', [StudentController::class, 'index'])->name('student.index');
 // Route::get('/students/create', [StudentController::class, 'create'])->name('student.create');
