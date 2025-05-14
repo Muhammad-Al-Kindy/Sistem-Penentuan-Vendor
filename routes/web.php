@@ -11,7 +11,10 @@ Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria.in
 
 Route::get('/subkriteria', [SubKriteriaController::class, 'index'])->name('subkriteria.index');
 Route::get('/subkriteria/create/{kriteriaId}', [SubKriteriaController::class, 'create'])->name('subkriteria.create');
+Route::get('/subkriteria/edit/{id}', [SubKriteriaController::class, 'edit'])->name('subkriteria.edit');
+Route::put('/subkriteria/update/{id}', [SubKriteriaController::class, 'update'])->name('subkriteria.update');
 Route::post('/subkriteria/submit', [SubKriteriaController::class, 'store'])->name('subkriteria.submit');
+Route::delete('/subkriteria/delete/{id}', [SubKriteriaController::class, 'destroy'])->name('subkriteria.destroy');
 // // student routes
 // Route::get('/students', [StudentController::class, 'index'])->name('student.index');
 // Route::get('/students/create', [StudentController::class, 'create'])->name('student.create');

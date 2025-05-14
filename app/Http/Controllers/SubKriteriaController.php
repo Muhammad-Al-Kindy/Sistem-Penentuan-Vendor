@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kriteria;
 use App\Models\SubKriteria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SubKriteriaController extends Controller
 {
@@ -37,6 +38,42 @@ class SubKriteriaController extends Controller
 
         SubKriteria::create($validated);
 
-        return redirect()->route('subkriteria.index')->with('success', 'SubKriteria created successfully.');
+        return redirect()->route('subkriteria.index')->with('status', 'stored');
     }
+
+    public function edit($id){
+        $subkriteria = SubKriteria::findOrFail($id);
+        return view('sub_kriteria.edit', compact('subkriteria'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $subkriteria = SubKriteria::findOrFail($id);
+        $validated = $request->validate([
+            'namaSubKriteria' => 'required|string|max:255',
+            'skorSubKriteria' => 'required|numeric',
+        ]);
+
+        Log::info("Updating SubKriteria id={$id} with data: ", $validated);
+
+        $subkriteria->update([
+            'namaSubKriteria' => $validated['namaSubKriteria'],
+            'skorSubKriteria' => $validated['skorSubKriteria']
+        ]);
+
+        return redirect()->route('subkriteria.index')->with('status', 'updated');
+    }
+
+    public function destroy($id)
+    {
+        $sub = SubKriteria::findOrFail($id);
+        $sub->delete();
+
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+
+        return redirect()->route('subkriteria.index')->with('status', 'deleted');
+    }
+
 }
