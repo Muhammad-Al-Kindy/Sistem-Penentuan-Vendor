@@ -1,32 +1,37 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\SubKriteriaController;
+use App\Http\Controllers\VendorController;
 
-Route::get('/', [KriteriaController::class, 'index'])->name('home');
-Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria.index');
-// Route::get('/kriteria/tambah', [KriteriaController::class, 'tambah_kriteria'])->name('kriteria.tambah_kriteria');
-// Route::post('/kriteria/{id}', [KriteriaController::class, 'destroy'])->name('kriteria.destroy');
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'authenticate'])->name('login.post');
+Route::get('/', [LoginController::class, 'showLoginForm']);
+Route::post('/', [LoginController::class, 'authenticate']);
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::get('/subkriteria', [SubKriteriaController::class, 'index'])->name('subkriteria.index');
-Route::get('/subkriteria/create/{kriteriaId}', [SubKriteriaController::class, 'create'])->name('subkriteria.create');
-Route::get('/subkriteria/edit/{id}', [SubKriteriaController::class, 'edit'])->name('subkriteria.edit');
-Route::put('/subkriteria/update/{id}', [SubKriteriaController::class, 'update'])->name('subkriteria.update');
-Route::post('/subkriteria/submit', [SubKriteriaController::class, 'store'])->name('subkriteria.submit');
-Route::delete('/subkriteria/delete/{id}', [SubKriteriaController::class, 'destroy'])->name('subkriteria.destroy');
-// // student routes
-// Route::get('/students', [StudentController::class, 'index'])->name('student.index');
-// Route::get('/students/create', [StudentController::class, 'create'])->name('student.create');
-// Route::post('/students/create', [StudentController::class, 'store'])->name('student.store');
 
-// Route::get('/students/{id}', [StudentController::class, 'edit'])->name('student.edit');
-// Route::put('/students/{id}', [StudentController::class, 'update'])->name('student.update');
-// Route::delete('/students/{id}', [StudentController::class, 'destroy'])->name('student.destroy');
-// Route::get('/students/view/{id}', [StudentController::class, 'show'])->name('student.show');
 
-// // product routes
-// Route::resource('products', ProductController::class);
+Route::middleware(['auth'])->group(function () {
+    Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria.index');
+});
 
-// //employe routes
-// Route::resource('employes', EmployeController::class);
+Route::middleware(['auth'])->group(function () {
+    Route::get('/subkriteria', [SubKriteriaController::class, 'index'])->name('subkriteria.index');
+    Route::get('/subkriteria/create/{kriteriaId}', [SubKriteriaController::class, 'create'])->name('subkriteria.create');
+    Route::get('/subkriteria/edit/{id}', [SubKriteriaController::class, 'edit'])->name('subkriteria.edit');
+    Route::put('/subkriteria/update/{id}', [SubKriteriaController::class, 'update'])->name('subkriteria.update');
+    Route::post('/subkriteria/submit', [SubKriteriaController::class, 'store'])->name('subkriteria.submit');
+    Route::delete('/subkriteria/delete/{id}', [SubKriteriaController::class, 'destroy'])->name('subkriteria.destroy');
+});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index');
+    Route::get('/vendor/create', [VendorController::class, 'create'])->name('vendor.create');
+    Route::post('/vendor/submit', [VendorController::class, 'store'])->name('vendor.submit');
+    Route::get('/vendor/edit/{id}', [VendorController::class, 'edit'])->name('vendor.edit');
+    // Route::put('/vendor/update/{id}', [VendorController::class, 'update'])->name('vendor.update');
+    // Route::post('/vendor/submit', [VendorController::class, 'store'])->name('vendor.submit');
+    Route::delete('/vendor/delete/{id}', [VendorController::class, 'destroy'])->name('vendor.destroy');
+});

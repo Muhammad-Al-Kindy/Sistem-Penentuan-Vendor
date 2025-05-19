@@ -3,13 +3,20 @@
 @section('title', 'Kriteria')
 
 @section('content')
-<div class="container mx-auto mt-6 px-4">
-    <div class="bg-white shadow-md rounded p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold">Data Kriteria</h2>
-      </div>
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-500 mb-6">
+        <a href="#" class="hover:underline">Home</a>
+        <span class="mx-2">/</span>
+        <span>Kriteria</span>
+    </nav>
 
-        <div class="mb-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Kriteria</h1>
+    </div>
+
+<div class="mb-4">
             <!-- Search Form -->
             <form method="GET" action="{{ route('kriteria.index') }}" class="mb-4">
                 <input type="text" name="search" value="{{ request('search') }}"
@@ -21,40 +28,42 @@
             </form>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-sm text-left text-gray-700 border border-gray-300 shadow rounded-lg">
-                <thead class="bg-blue-50 text-gray-700 uppercase text-xs font-semibold">
-                    <tr>
-                        <th class="px-6 py-3 border border-gray-300">No</th>
-                        <th class="px-6 py-3 border border-gray-300">Kriteria</th>
-                        <th class="px-6 py-3 border border-gray-300">Bobot</th>
-                        <th class="px-6 py-3 text-center border border-gray-300">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    @foreach($kriterias as $index => $kriteria)
-                    <tr class="hover:bg-blue-100 transition duration-200">
-                        <td class="px-6 py-3 border border-gray-300">{{ $loop->iteration }}</td>
-                        <td class="px-6 py-3 border border-gray-300">{{ $kriteria->namaKriteria }}</td>
-                        <td class="px-6 py-3 border border-gray-300">{{ $kriteria->bobot }}</td>
-                        <td class="px-6 py-3 text-center border border-gray-300">
-                            <a href="{{ route('subkriteria.index', ['kriteriaId' => $kriteria->idKriteria]) }}"
-                            class="inline-flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded text-sm shadow">
-                                ✏️ Detail
-                            </a>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            <div class="mt-4">
-                {{ $kriterias->links() }}
-            </div>
-        </div>
-
-
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-gray-100 text-gray-600 uppercase tracking-wider">
+                <tr >
+                    <th class="px-6 py-3 text-left">No</th>
+                    <th class="px-6 py-3 text-left">Kriteria</th>
+                    <th class="px-6 py-3 text-left">Bobot</th>
+                    <th class="px-6 py-3 text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200 ">
+                @forelse($kriterias as $index => $kriteria)
+                <tr class="hover:bg-blue-100 transition duration-200">
+                    <td class="px-6 py-4 whitespace-nowrap">{{ $kriterias->firstItem() + $index }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ $kriteria->namaKriteria }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ $kriteria->bobot }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <a href="{{ route('subkriteria.index', ['kriteriaId' => $kriteria->idKriteria]) }}"
+                           class="inline-flex items-center bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded text-sm font-semibold">
+                            <i class="ri-edit-box-line mr-1"></i> Detail
+                        </a>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">Tidak ada data kriteria.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
-
+    <!-- Pagination -->
+    <div class="mt-6">
+        {{ $kriterias->links('pagination::tailwind') }}
+    </div>
+</div>
 @endsection
-

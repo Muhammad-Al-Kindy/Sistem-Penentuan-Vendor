@@ -3,11 +3,11 @@
 @section('title', 'Edit Sub Kriteria')
 
 @section('content')
-<div class="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
+<div id="app" data-subkriteria-url="{{ route('subkriteria.index') }}" class="max-w-7xl mx-auto px-4 py-8">
     <!-- Breadcrumb -->
     <div class="mb-4 text-sm text-gray-500">
-        <a href="{{ route('kriteria.index') }}" class="hover:underline">Home</a> &gt;
-        <a href="{{ route('kriteria.index') }}" class="hover:underline">Kriteria</a> &gt;
+        <a href="{{ route('kriteria.index') }}" class="hover:underline">Home</a> >
+        <a href="{{ route('kriteria.index') }}" class="hover:underline">Kriteria</a> >
         <span class="text-gray-800 font-medium">Sub Kriteria</span>
     </div>
 
@@ -15,7 +15,7 @@
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Edit Sub Kriteria</h2>
 
     <!-- Form -->
-    <form action="{{ route('subkriteria.update', $subkriteria->idSubKriteria) }}" method="POST" class="space-y-6">
+    <form action="{{ route('subkriteria.update', $subkriteria->idSubKriteria) }}" method="POST" class="space-y-6" data-update-form data-redirect-url="{{ route('subkriteria.index') }}">
         @csrf
         @method('PUT')
 

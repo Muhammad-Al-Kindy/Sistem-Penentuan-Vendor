@@ -1,10 +1,8 @@
-
-
 @extends('layout.base')
 @section('content')
 <div class="w-1/2 mx-auto mt-5">
     <h1 class="text-center">Update Employe</h1>
-    <form action="{{ route('employes.update' , $Employe->id) }}" method="POST" class="max-w-md mx-auto" enctype="multipart/form-data">
+    <form action="{{ route('subkriteria.update' , $subkriteria->idSubKriteria) }}" method="POST" class="max-w-md mx-auto" enctype="multipart/form-data" data-update-form>
         @csrf
         @method('PUT')
         <!-- firstname -->

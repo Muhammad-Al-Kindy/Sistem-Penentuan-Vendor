@@ -36,9 +36,18 @@ class SubKriteriaController extends Controller
             'skorSubKriteria' => 'required|numeric',
         ]);
 
-        SubKriteria::create($validated);
+        $subkriteria = SubKriteria::create($validated);
 
-        return redirect()->route('subkriteria.index')->with('status', 'stored');
+        Log::info("Added new SubKriteria: ", $subkriteria->toArray());
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Sub Kriteria berhasil ditambahkan.'
+            ]);
+        }
+
+        return redirect()->route('subkriteria.index', ['kriteriaId' => $validated['kriteriaId']])->with('status', 'stored');
     }
 
     public function edit($id){
@@ -48,21 +57,24 @@ class SubKriteriaController extends Controller
 
     public function update(Request $request, $id)
     {
-        $subkriteria = SubKriteria::findOrFail($id);
-        $validated = $request->validate([
-            'namaSubKriteria' => 'required|string|max:255',
-            'skorSubKriteria' => 'required|numeric',
-        ]);
+        $sub = SubKriteria::findOrFail($id);
 
-        Log::info("Updating SubKriteria id={$id} with data: ", $validated);
+        $data = $request->only(['namaSubKriteria', 'skorSubKriteria']);
 
-        $subkriteria->update([
-            'namaSubKriteria' => $validated['namaSubKriteria'],
-            'skorSubKriteria' => $validated['skorSubKriteria']
-        ]);
+        Log::info("Updating SubKriteria id={$id} with data: ", $data);
+
+        $sub->update($data);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Sub Kriteria berhasil diperbarui.'
+            ]);
+        }
 
         return redirect()->route('subkriteria.index')->with('status', 'updated');
     }
+
 
     public function destroy($id)
     {

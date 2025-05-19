@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'System CRUD')</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    @vite('resources/css/app.css')
+    @vite('resources/js/app.js')
+
+
 </head>
 <body class="bg-gray-100">
 
@@ -20,11 +22,5 @@
         @yield('content')
         </main>
     </div>
-
-    <script src="{{ asset('js/navbar.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ asset('js/confirmation.js') }}"></script>
-    <script src="{{ Vite::asset('resources/js/app.js') }}"></script>
-    @yield('scripts')
 </body>
 </html>

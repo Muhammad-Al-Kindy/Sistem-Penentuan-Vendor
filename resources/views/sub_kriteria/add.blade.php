@@ -3,14 +3,14 @@
 @section('title', 'Tambah Sub Kriteria')
 
 @section('content')
-<div class="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
+<div id="app" data-subkriteria-url="{{ route('subkriteria.index') }}" class="max-w-7xl mx-auto px-4 py-8">
     <!-- Header and Back Button -->
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Tambah Sub Kriteria</h2>
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Tambah Sub Kriteria</h1>
     </div>
 
     <!-- Form -->
-    <form action="{{ route('subkriteria.submit') }}" method="POST" class="space-y-6">
+    <form action="{{ route('subkriteria.submit') }}" method="POST" class="space-y-6" data-store-form>
         @csrf
         <input type="hidden" name="kriteriaId" value="{{ $kriteria->idKriteria }}">
 

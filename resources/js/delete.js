@@ -1,3 +1,5 @@
+import Swal from "sweetalert2";
+
 document.addEventListener("DOMContentLoaded", function () {
     const deleteForms = document.querySelectorAll("form[data-delete-form]");
 
@@ -39,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 icon: "success",
                                 title: "Data berhasil dihapus!",
                                 showConfirmButton: false,
-                                timer: 3000,
+                                timer: 1000,
                                 timerProgressBar: true,
                             });
 
