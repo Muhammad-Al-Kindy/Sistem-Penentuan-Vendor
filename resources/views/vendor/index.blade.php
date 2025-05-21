@@ -47,7 +47,7 @@
                                class="text-yellow-600 hover:text-yellow-800">
                                 <i class="ri-edit-box-line text-lg"></i>
                             </a>
-                            <form action="{{ route('vendor.destroy', $vendor->idVendor) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus vendor ini?')">
+                            <form action="{{ route('vendor.destroy', $vendor->idVendor) }}" method="POST" data-delete-form>
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-800">

@@ -3,7 +3,7 @@
 @section('title', 'Create Vendor')
 
 @section('content')
-<div class="max-w-2xl mx-auto px-4 py-8">
+<div id="app" data-subkriteria-url="{{ route('vendor.index') }}" class="max-w-7xl mx-auto px-4 py-8">
     <div class="bg-white shadow-md rounded-lg p-6">
         <!-- Breadcrumb -->
 
@@ -11,7 +11,7 @@
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Tambah Vendor</h1>
 
         <!-- Form -->
-        <form action="{{ route('vendor.submit') }}" method="POST" class="space-y-5">
+        <form action="{{ route('vendor.submit') }}" method="POST" class="space-y-6" data-store-form>
             @csrf
 
             <!-- Nama Perusahaan -->

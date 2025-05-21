@@ -22,16 +22,18 @@ class VendorController extends Controller
     {
         return view('vendor.add');
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'namaVendor' => 'required|string',
-            'alamatVendor' => 'required|string',
-            'NPWP' => 'required|string',
-            'SPPKP' => 'required|string',
-            'nomorIndukPerusahaan' => 'required|string',
-            'jenisPerusahaan' => 'required|string',
-        ]);
+        'namaVendor' => 'required|string',
+        'alamatVendor' => 'required|string',
+        'NPWP' => 'required|string',
+        'SPPKP' => 'required|string',
+        'nomorIndukPerusahaan' => 'required|string',
+        'jenisPerusahaan' => 'required|string',
+    ]);
+
 
         $vendor = Vendor::create($validated);
 
@@ -55,18 +57,18 @@ class VendorController extends Controller
     public function update(Request $request, $id)
     {
         $vendor = Vendor::findOrFail($id);
-        $validated = $request->validate([
-            'namaVendor' => 'required|string',
-            'alamatVendor' => 'required|string',
-            'NPWP' => 'required|string',
-            'SPPKP' => 'required|string',
-            'nomorIndukPerusahaan' => 'required|string',
-            'jenisPerusahaan' => 'required|string',
-        ]);
+        $data = $request->only(['namaVendor', 'alamatVendor','NPWP','SPPKP','nomorIndukPerusahaan','jenisPerusahaan']);
 
-        Log::info("Updating Vendor id={$id} with data: ", $validated);
+        Log::info("Updating Vendor id={$id} with data: ", $data);
 
-        $vendor->update($validated);
+        $vendor->update($data);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Sub Kriteria berhasil diperbarui.'
+            ]);
+        }
 
         return redirect()->route('vendor.index')->with('status', 'updated');
     }

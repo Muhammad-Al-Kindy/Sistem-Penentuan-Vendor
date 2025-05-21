@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\SubKriteriaController;
 use App\Http\Controllers\VendorController;
+use App\Http\Controllers\SmartController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.post');
@@ -31,7 +32,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/vendor/create', [VendorController::class, 'create'])->name('vendor.create');
     Route::post('/vendor/submit', [VendorController::class, 'store'])->name('vendor.submit');
     Route::get('/vendor/edit/{id}', [VendorController::class, 'edit'])->name('vendor.edit');
-    // Route::put('/vendor/update/{id}', [VendorController::class, 'update'])->name('vendor.update');
-    // Route::post('/vendor/submit', [VendorController::class, 'store'])->name('vendor.submit');
+    Route::put('/vendor/update/{id}', [VendorController::class, 'update'])->name('vendor.update');
     Route::delete('/vendor/delete/{id}', [VendorController::class, 'destroy'])->name('vendor.destroy');
 });
+
+Route::get('/smart-form', [SmartController::class, 'form'])->name('smart.form');
+Route::post('/smart-process', [SmartController::class, 'process'])->name('smart.process');
