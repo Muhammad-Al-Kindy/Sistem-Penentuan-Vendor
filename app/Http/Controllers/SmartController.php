@@ -17,6 +17,12 @@ class SmartController extends Controller
     public function process(Request $request)
     {
         try {
+            $request->validate([
+                'alternatives' => 'required|array',
+                'weights' => 'required|array',
+                'types' => 'required|array',
+            ]);
+
             $alternatives = $request->input('alternatives');
             $weights = array_map('floatval', $request->input('weights'));
             $types = array_map('intval', $request->input('types'));
@@ -32,39 +38,38 @@ class SmartController extends Controller
                 "types" => $types,
             ];
 
-            // Simpan ke input.json
-            $jsonPath = storage_path('app/input.json');
-            file_put_contents($jsonPath, json_encode($data));
+            $jsonString = escapeshellarg(json_encode($data));
 
-            // Jalur Python virtualenv dan skrip
+
             $pythonPath = base_path('resources/python/venv/Scripts/python.exe');
-            $scriptPath = base_path('resources/python/smart_from_file.py');
+            $scriptPath = base_path('resources/python/smart_from_json.py');
             $scriptDir = dirname($scriptPath);
 
-            // Inject environment agar matplotlib tidak error
             $env = [
                 'HOME' => base_path(),
                 'USERPROFILE' => base_path(),
+                'PYTHONASYNCIODEBUG' => '1',
+                'JOBLIB_TEMP_FOLDER' => storage_path(),
             ];
 
-            // Eksekusi proses
-            $process = new Process([$pythonPath, $scriptPath, $jsonPath], $scriptDir, $env);
-            $process->run();
+$process = new Process([
+    $pythonPath,
+    $scriptPath,
+    '--jsondata=' . json_encode($data)
+], $scriptDir, $env);
 
-            // Tangani error
+
+            Log::info("Starting SMART process with data: " . $jsonString);
+            $process->run();
+            Log::info("SMART process completed with output: " . $process->getOutput());
+
             if (!$process->isSuccessful()) {
                 Log::error("Python error:\n" . $process->getErrorOutput());
                 throw new ProcessFailedException($process);
             }
 
-            // Ambil hasil dan tampilkan
-        $result = json_decode($process->getOutput(), true);
-
-        if (is_null($result) || !isset($result['scores'])) {
-            return back()->withErrors(['error' => 'Invalid output from SMART calculation.']);
-        }
-
-        return view('smart.result', compact('result'));
+            $result = json_decode($process->getOutput(), true);
+            return view('smart.result', compact('result'));
 
         } catch (\Throwable $e) {
             Log::error("SMART Processing Error: " . $e->getMessage());

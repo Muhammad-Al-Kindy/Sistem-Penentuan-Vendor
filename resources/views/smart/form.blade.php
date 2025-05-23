@@ -6,53 +6,47 @@
 <div class="max-w-4xl mx-auto p-6 bg-white shadow-md rounded">
     <h2 class="text-2xl font-bold mb-4">Form Input SMART</h2>
 
-    <form action="{{ route('smart.process') }}" method="POST">
-        @csrf
+    <form method="POST" action="{{ route('smart.process') }}">
+    @csrf
+        <div>
+            <label>Jumlah Alternatif:</label>
+            <input type="number" name="jumlah_alternatif" value="3" readonly class="w-full border p-2">
+        </div>
+        <div>
+            <label>Jumlah Kriteria:</label>
+            <input type="number" name="jumlah_kriteria" value="3" readonly class="w-full border p-2">
+        </div>
 
-        <h3 class="text-lg font-semibold mb-2">Matrix Alternatif vs Kriteria</h3>
+        <hr class="my-4">
+        <h3 class="text-lg font-bold mb-2">Nilai Alternatif per Kriteria</h3>
+        @for ($i = 0; $i < 3; $i++)
+            <div class="mb-2">Alternatif {{ $i + 1 }}</div>
+            @for ($j = 0; $j < 3; $j++)
+                <div class="mb-1">
+                    <label>Kriteria {{ $j + 1 }}:</label>
+                    <input type="number" step="0.01" name="alternatives[{{ $i }}][{{ $j }}]" class="w-full border p-2">
+                </div>
+            @endfor
+            <hr class="my-2">
+        @endfor
 
-        @php
-            $jumlahAlternatif = 3; // ubah sesuai kebutuhan
-            $jumlahKriteria = 3;
-        @endphp
-
-        @for ($i = 0; $i < $jumlahAlternatif; $i++)
-            <div class="mb-2 font-semibold text-blue-700">Alternatif {{ $i + 1 }}</div>
-            <div class="grid grid-cols-1 md:grid-cols-{{ $jumlahKriteria }} gap-4 mb-4">
-                @for ($j = 0; $j < $jumlahKriteria; $j++)
-                    <div>
-                        <label for="alternatives[{{ $i }}][{{ $j }}]" class="block text-sm">Kriteria {{ $j + 1 }}</label>
-                        <input type="number" step="0.01" name="alternatives[{{ $i }}][{{ $j }}]" class="w-full border border-gray-300 px-3 py-2 rounded" required>
-                    </div>
-                @endfor
+        <h3 class="text-lg font-bold mt-4 mb-2">Bobot Kriteria</h3>
+        @for ($j = 0; $j < 3; $j++)
+            <div class="mb-2">
+                <label>Bobot Kriteria {{ $j + 1 }}:</label>
+                <input type="number" step="0.01" name="weights[]" class="w-full border p-2">
             </div>
         @endfor
 
-        <hr class="my-4">
+        <h3 class="text-lg font-bold mt-4 mb-2">Tipe Kriteria</h3>
+        @for ($j = 0; $j < 3; $j++)
+            <div class="mb-2">
+                <label>Tipe Kriteria {{ $j + 1 }} (1=Benefit, -1=Cost):</label>
+                <input type="number" name="types[]" class="w-full border p-2">
+            </div>
+        @endfor
 
-        <h3 class="text-lg font-semibold mb-2">Bobot Kriteria</h3>
-        <div class="grid grid-cols-1 md:grid-cols-{{ $jumlahKriteria }} gap-4 mb-4">
-            @for ($j = 0; $j < $jumlahKriteria; $j++)
-                <div>
-                    <label for="weights[]" class="block text-sm">Bobot Kriteria {{ $j + 1 }}</label>
-                    <input type="number" step="0.01" name="weights[]" class="w-full border border-gray-300 px-3 py-2 rounded" required>
-                </div>
-            @endfor
-        </div>
-
-        <h3 class="text-lg font-semibold mb-2">Tipe Kriteria</h3>
-        <div class="grid grid-cols-1 md:grid-cols-{{ $jumlahKriteria }} gap-4 mb-4">
-            @for ($j = 0; $j < $jumlahKriteria; $j++)
-                <div>
-                    <label for="types[]" class="block text-sm">Tipe Kriteria {{ $j + 1 }} (1=Benefit, -1=Cost)</label>
-                    <input type="number" name="types[]" class="w-full border border-gray-300 px-3 py-2 rounded" required>
-                </div>
-            @endfor
-        </div>
-
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow">
-            Proses SMART
-        </button>
+        <button type="submit" class="mt-4 bg-blue-500 text-white px-4 py-2">Proses</button>
     </form>
 </div>
 @endsection
