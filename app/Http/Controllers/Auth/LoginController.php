@@ -21,7 +21,7 @@ class LoginController extends Controller
     |
     */
 
-        use AuthenticatesUsers;
+    use AuthenticatesUsers;
 
 
     protected $redirectTo = '/kriteria';
@@ -36,7 +36,8 @@ class LoginController extends Controller
         return 'name';
     }
 
-    public function showLoginForm(){
+    public function showLoginForm()
+    {
         return view('auth.login');
     }
 
@@ -65,7 +66,7 @@ class LoginController extends Controller
                 ]);
             }
             return redirect('/kriteria')->with('login_success', true);
-            Log::info('User logged in', ['user_id' => $user->id, 'name' => $user->name, 'ip' => $request->ip()]);
+            Log::info('User logged in', ['user_id' => $user->idUser, 'name' => $user->name, 'ip' => $request->ip()]);
         }
 
         if ($request->wantsJson()) {
