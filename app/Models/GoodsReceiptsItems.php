@@ -16,7 +16,6 @@ class GoodsReceiptsItems extends Model
 
     public $timestamps = true;
 
-    // GoodsReceipt.php
     public function goodsReceipt()
     {
         return $this->belongsTo(GoodsReceipts::class);

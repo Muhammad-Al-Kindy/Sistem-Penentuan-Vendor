@@ -13,10 +13,10 @@ class Kriteria extends Model
 
     public $timestamps = false;
 
-    protected $fillable =['namaKriteria','bobot'];
+    protected $fillable = ['namaKriteria', 'tipe'];
 
     public function subKriteria()
     {
-        return $this->hasOne(subKriteria::class,'idKriteria','kriteriaId');
+        return $this->hasMany(subKriteria::class, 'idKriteria', 'kriteriaId');
     }
 }

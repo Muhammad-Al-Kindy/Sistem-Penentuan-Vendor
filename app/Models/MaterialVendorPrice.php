@@ -14,4 +14,15 @@ class MaterialVendorPrice extends Model
     protected $primaryKey = 'idMaterialVendorPrice';
 
     protected $fillable = ['materialId', 'vendorId', 'harga', 'mataUang'];
+
+    // ItemVendorPrice.php
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
+    public function item()
+    {
+        return $this->belongsTo(Material::class);
+    }
 }

@@ -14,4 +14,10 @@ class VendorContact extends Model
     protected $primaryKey = 'idVendorContact';
 
     protected $fillable = ['idVendor', 'contactPerson', 'telepon', 'fax', 'email', 'jabatan'];
+
+    // App\Models\VendorContact.php
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
 }

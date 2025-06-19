@@ -13,5 +13,16 @@ class Vendor extends Model
 
     protected $primaryKey = 'idVendor';
 
-    protected $fillable =['namaVendor','alamatVendor','NPWP','jenisPerusahaan','SPPKP','nomorIndukPerusahaan'];
+    protected $fillable = ['namaVendor', 'alamatVendor', 'NPWP', 'jenisPerusahaan', 'SPPKP', 'nomorIndukPerusahaan'];
+
+    // App\Models\Vendor.php
+    public function contacts()
+    {
+        return $this->hasMany(VendorContact::class);
+    }
+
+    public function evaluations()
+    {
+        return $this->hasMany(VendorEvaluaations::class);
+    }
 }
