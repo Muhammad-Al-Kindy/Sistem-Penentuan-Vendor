@@ -87,7 +87,7 @@ use Illuminate\Support\Facades\Log;
 // }
 
 
-class VendorsController extends Controller
+class VendorController extends Controller
 {
     public function index(Request $request)
     {

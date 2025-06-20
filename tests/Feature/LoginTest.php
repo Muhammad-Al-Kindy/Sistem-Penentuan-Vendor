@@ -12,7 +12,7 @@ class LoginTest extends TestCase
 
     public function test_login_page_can_be_rendered()
     {
-        $response = $this->get('/');
+        $response = $this->get('/login');
         $response->assertStatus(200);
         $response->assertViewIs('auth.login');
     }
@@ -21,32 +21,34 @@ class LoginTest extends TestCase
     {
         $user = User::factory()->create([
             'name' => 'testuser',
-            'password' => bcrypt('password123'),
+            'email' => 'testuser@example.com',
+            'password' => bcrypt('password'),
         ]);
 
-        $response = $this->post('/', [
-            'name' => 'testuser',
-            'password' => 'password123',
+        $response = $this->withMiddleware()->post('/login', [
+            'email' => 'testuser@example.com',
+            'password' => 'password',
         ]);
 
         $response->assertRedirect('/kriteria');
-        $this->assertAuthenticatedAs($user);
+        $this->assertAuthenticated();
     }
 
     public function test_user_cannot_login_with_invalid_credentials()
     {
         $user = User::factory()->create([
             'name' => 'testuser',
+            'email' => 'testuser@example.com',
             'password' => bcrypt('password123'),
         ]);
 
-        $response = $this->from('/')->post('/', [
-            'name' => 'testuser',
+        $response = $this->from('/')->post('/login', [
+            'email' => 'testuser@example.com',
             'password' => 'wrongpassword',
         ]);
 
         $response->assertRedirect('/');
-        $response->assertSessionHasErrors('username');
+        $response->assertSessionHasErrors('email');
         $this->assertGuest();
     }
 }

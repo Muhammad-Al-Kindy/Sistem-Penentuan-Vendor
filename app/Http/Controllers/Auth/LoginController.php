@@ -7,6 +7,8 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -33,7 +35,7 @@ class LoginController extends Controller
      */
     public function username()
     {
-        return 'name';
+        return 'email';
     }
 
     public function showLoginForm()
@@ -50,14 +52,24 @@ class LoginController extends Controller
     public function authenticate(Request $request)
     {
         $credentials = $request->validate([
-            'name' => ['required'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        // Check if user exists, if not create user
+        $user = User::where('email', $credentials['email'])->first();
+        if (!$user) {
+            $user = User::create([
+                'name' => explode('@', $credentials['email'])[0], // Use email prefix as name
+                'email' => $credentials['email'],
+                'password' => Hash::make($credentials['password']),
+            ]);
+            Log::info('New user created at login', ['user_id' => $user->id, 'email' => $user->email]);
+
+            Auth::login($user);
             $request->session()->regenerate();
 
-            $user = Auth::user();
+            Log::info('User logged in', ['user_id' => $user->id, 'email' => $user->email, 'ip' => $request->ip()]);
 
             if ($request->wantsJson()) {
                 return response()->json([
@@ -65,9 +77,26 @@ class LoginController extends Controller
                     'user' => $user,
                 ]);
             }
-            return redirect('/kriteria')->with('login_success', true);
-            Log::info('User logged in', ['user_id' => $user->idUser, 'name' => $user->name, 'ip' => $request->ip()]);
+            return redirect()->route('kriteria.index')->with('login_success', true);
         }
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            Log::info('User logged in', ['user_id' => $user->id ?? null, 'email' => $user->email, 'ip' => $request->ip()]);
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'message' => 'Authenticated',
+                    'user' => $user,
+                ]);
+            }
+            return redirect()->route('kriteria.index')->with('login_success', true);
+        }
+
+        Log::warning('Failed login attempt', ['email' => $request->input('email'), 'ip' => $request->ip()]);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -76,9 +105,8 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
+            'email' => 'The provided credentials do not match our records.',
         ]);
-        Log::warning('Failed login attempt', ['name' => $request->input('name'), 'ip' => $request->ip()]);
     }
 
     /**

@@ -14,19 +14,28 @@
             <div class="w-full px-8">
                 <h2 class="text-3xl font-semibold text-center mb-8">Login</h2>
 
-                @if (session('error'))
-                    <div class="mb-4 text-red-600 text-center">{{ session('error') }}</div>
+                @if ($errors->any())
+                    <div class="mb-4 text-red-600 text-center">
+                        <ul class="list-disc list-inside">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
                 @endif
 
                 <form method="POST" action="{{ route('login.post') }}" class="space-y-6">
                     @csrf
 
-                    <!-- Username -->
+                    <!-- Email -->
                     <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                        <input type="text" name="name" id="name" value="{{ old('name') }}"
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" name="email" id="email" value="{{ old('email') }}"
                             class="w-full px-4 py-2 rounded-full bg-gray-200 text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
                             required autofocus>
+                        @error('email')
+                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Password -->
@@ -35,6 +44,9 @@
                         <input type="password" name="password" id="password"
                             class="w-full px-4 py-2 rounded-full bg-gray-200 text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
                             required>
+                        @error('password')
+                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Submit -->

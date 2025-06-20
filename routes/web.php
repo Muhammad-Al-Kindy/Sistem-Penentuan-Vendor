@@ -6,15 +6,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\SubKriteriaController;
 use App\Http\Controllers\SmartController;
-use App\Http\Controllers\VendorsController;
+use App\Http\Controllers\VendorController;
+
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.post');
-Route::get('/', [LoginController::class, 'showLoginForm']);
-Route::post('/', [LoginController::class, 'authenticate']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria.index');
@@ -29,12 +30,12 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/subkriteria/delete/{id}', [SubKriteriaController::class, 'destroy'])->name('subkriteria.destroy');
 });
 Route::middleware(['auth'])->group(function () {
-    Route::get('/vendor', [VendorsController::class, 'index'])->name('vendor.index');
-    Route::get('/vendor/create', [VendorsController::class, 'create'])->name('vendor.create');
-    Route::post('/vendor/submit', [VendorsController::class, 'store'])->name('vendor.submit');
-    Route::get('/vendor/edit/{id}', [VendorsController::class, 'edit'])->name('vendor.edit');
-    Route::put('/vendor/update/{id}', [VendorsController::class, 'update'])->name('vendor.update');
-    Route::delete('/vendor/delete/{id}', [VendorsController::class, 'destroy'])->name('vendor.destroy');
+    Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index');
+    Route::get('/vendor/create', [VendorController::class, 'create'])->name('vendor.create');
+    Route::post('/vendor/submit', [VendorController::class, 'store'])->name('vendor.submit');
+    Route::get('/vendor/edit/{id}', [VendorController::class, 'edit'])->name('vendor.edit');
+    Route::put('/vendor/update/{id}', [VendorController::class, 'update'])->name('vendor.update');
+    Route::delete('/vendor/delete/{id}', [VendorController::class, 'destroy'])->name('vendor.destroy');
 });
 
 Route::middleware(['auth'])->group(function () {
