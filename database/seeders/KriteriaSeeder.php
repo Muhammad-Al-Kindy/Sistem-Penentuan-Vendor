@@ -14,26 +14,26 @@ class KriteriaSeeder extends Seeder
     public function run(): void
     {
         Kriteria::insert([
-        [
-        'namaKriteria' => 'Delivery Time Pengiriman',
-        'bobot' => '25'
-        ],
-        [
-        'namaKriteria' => 'Monitoring',
-        'bobot' => '15'
-        ],
-        [
-        'namaKriteria' => 'Kualitas',
-        'bobot' => '30'
-        ],
-        [
-        'namaKriteria' => 'Respon NC',
-        'bobot' => '10'
-        ],
-        [
-        'namaKriteria' => 'PO Batal',
-        'bobot' => '20'
-        ]
+            [
+                'namaKriteria' => 'Delivery Time Pengiriman',
+                'tipe' => 'benefit'
+            ],
+            [
+                'namaKriteria' => 'Monitoring',
+                'tipe' => 'benefit'
+            ],
+            [
+                'namaKriteria' => 'Kualitas',
+                'tipe' => 'benefit'
+            ],
+            [
+                'namaKriteria' => 'Respon NC',
+                'tipe' => 'benefit'
+            ],
+            [
+                'namaKriteria' => 'PO Batal',
+                'tipe' => 'cost'
+            ]
         ]);
     }
 }
