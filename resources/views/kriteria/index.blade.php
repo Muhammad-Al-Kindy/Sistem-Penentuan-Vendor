@@ -34,7 +34,7 @@
                     <tr>
                         <th class="px-6 py-3 text-left">No</th>
                         <th class="px-6 py-3 text-left">Kriteria</th>
-                        <th class="px-6 py-3 text-left">Bobot</th>
+                        <th class="px-6 py-3 text-left">Tipe</th>
                         <th class="px-6 py-3 text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -43,7 +43,7 @@
                         <tr class="hover:bg-blue-100 transition duration-200">
                             <td class="px-6 py-4 whitespace-nowrap">{{ $kriterias->firstItem() + $index }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $kriteria->namaKriteria }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $kriteria->bobot }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $kriteria->tipe }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <a href="{{ route('subkriteria.index', ['kriteriaId' => $kriteria->idKriteria]) }}"
                                     class="inline-flex items-center bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded text-sm font-semibold">
