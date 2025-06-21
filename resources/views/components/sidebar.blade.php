@@ -5,13 +5,14 @@
     </div>
     <nav class="p-4 space-y-2 border-t border-b">
         <h2 class="text-xl font-semibold mb-2">Menu</h2>
-        <a href="#" class="block py-2 px-4 rounded hover:bg-blue-300">Dashboard</a>
+        <a href="{{ route('dashboard.index') }}" class="block py-2 px-4 rounded hover:bg-blue-300">Dashboard</a>
         <a href="{{ route('kriteria.index') }}" class="block py-2 px-4 rounded hover:bg-blue-300">Kriteria</a>
         <a href="{{ route('vendor.index') }}" class="block py-2 px-4 rounded hover:bg-blue-300">List Vendor</a>
-        <a href="#" class="block py-2 px-4 rounded hover:bg-blue-300">List Purchase Order</a>
-        <a href="#" class="block py-2 px-4 rounded hover:bg-blue-300">Kelola Kedatangan</a>
-        <a href="#" class="block py-2 px-4 rounded hover:bg-blue-300">Rating</a>
-        <a href="#" class="block py-2 px-4 rounded hover:bg-blue-300">Rekomendasi</a>
+        <a href="{{ route('purchase_order.index') }}" class="block py-2 px-4 rounded hover:bg-blue-300">List Purchase Order</a>
+        <a href="{{ route('kedatangan.index') }}" class="block py-2 px-4 rounded hover:bg-blue-300">Kelola Kedatangan</a>
+        <a href="{{ route('rating.index') }}" class="block py-2 px-4 rounded hover:bg-blue-300">Rating</a>
+        <a href="{{ route('rekomendasi.index') }}" class="block py-2 px-4 rounded hover:bg-blue-300">Rekomendasi</a>
+
     </nav>
     <nav class="p-4 space-y-2">
         <h2 class="text-xl font-semibold mb-2">Support</h2>

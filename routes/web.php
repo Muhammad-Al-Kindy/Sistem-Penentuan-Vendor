@@ -44,3 +44,57 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/smart-form', [SmartController::class, 'form'])->name('smart.form');
 Route::post('/smart-process', [SmartController::class, 'process'])->name('smart.process');
+
+
+Route::get('/purchase-order', function () {
+    return view('purchase_order.index'); // jika hanya tampilan statis
+})->name('purchase_order.index');
+
+Route::get('/purchase-order/add', function () {
+    return view('purchase_order.add');
+})->name('purchase_order.add');
+
+
+Route::get('/purchase-order/edit', function () {
+    return view('purchase_order.edit');
+})->name('purchase_order.edit');
+
+
+
+Route::get('/kelola-kedatangan', function () {
+    return view('kelola_kedatangan.index');
+})->name('kedatangan.index');
+
+Route::get('/kelola-kedatangan/tambah', function () {
+    return view('kelola_kedatangan.add');
+})->name('kedatangan.add');
+
+Route::get('/kelola-kedatangan/edit', function () {
+    return view('kelola_kedatangan.edit');
+})->name('kedatangan.edit');
+
+Route::get('/rekomendasi', function () {
+    return view('rekomendasi.index');
+})->name('rekomendasi.index');
+
+
+
+
+Route::get('/rating', function () {
+    return view('rating.index');
+})->name('rating.index');
+
+Route::get('/rating/tambah', function () {
+    return view('rating.add');
+})->name('rating.add');
+
+Route::get('/rating/edit', function () {
+    return view('rating.edit');
+})->name('rating.edit');
+
+
+
+
+Route::get('/dashboard', function () {
+    return view('dashboard.index');
+})->name('dashboard.index');
