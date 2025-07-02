@@ -31,4 +31,9 @@ class PurchaseOrder extends Model
     {
         return $this->hasMany(GoodsReceipts::class);
     }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vendorId', 'idVendor');
+    }
 }

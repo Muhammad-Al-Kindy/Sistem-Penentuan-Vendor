@@ -14,7 +14,7 @@
         <div class="bg-white rounded shadow p-6">
             <h2 class="text-2xl font-bold mb-6 text-gray-800">Edit Vendor</h2>
 
-            <form action="{{ route('vendor.update', $vendor->idVendor) }}" method="POST" class="space-y-6" data-update-form
+            <form action="{{ route('vendor.update', $vendor) }}" method="POST" class="space-y-6" data-update-form
                 data-redirect-url="{{ route('vendor.index') }}">
                 @csrf
                 @method('PUT')

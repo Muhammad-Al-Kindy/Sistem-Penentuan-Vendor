@@ -20,9 +20,9 @@
             <div class="flex flex-col">
                 <form method="GET" action="{{ route('vendor.index') }}" class="mb-4">
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search vendor..."
-                        class="w-full md:w-96 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400">
+                        class="w-full md:w-96 sm:w-52 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400">
                     <button type="submit" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        🔍 Cari
+                        <i class="ri-search-line mr-1"></i> Cari
                     </button>
                 </form>
             </div>
@@ -82,8 +82,8 @@
         </div>
 
         <!-- Pagination -->
-        <div class="mt-6">
-            {{ $vendors->links('pagination::tailwind') }}
+        <div class="mt-6 flex justify-end">
+            {{ $vendors->links('components.pagination') }}
         </div>
     </div>
 @endsection

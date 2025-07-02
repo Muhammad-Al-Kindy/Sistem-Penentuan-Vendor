@@ -15,14 +15,19 @@ class Vendor extends Model
 
     protected $fillable = ['namaVendor', 'alamatVendor', 'NPWP', 'jenisPerusahaan', 'SPPKP', 'nomorIndukPerusahaan'];
 
+    public function getRouteKeyName()
+    {
+        return 'idVendor';
+    }
+
     // App\Models\Vendor.php
     public function contacts()
     {
-        return $this->hasMany(VendorContact::class);
+        return $this->hasMany(VendorContact::class, 'vendorId', 'idVendor');
     }
 
     public function evaluations()
     {
-        return $this->hasMany(VendorEvaluaations::class);
+        return $this->hasMany(VendorEvaluaations::class, 'vendorId', 'idVendor');
     }
 }

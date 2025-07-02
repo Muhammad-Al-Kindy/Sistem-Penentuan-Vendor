@@ -4,10 +4,10 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\GoodsReceiptsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KriteriaController;
+use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\SubKriteriaController;
 use App\Http\Controllers\SmartController;
 use App\Http\Controllers\VendorController;
-
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.post');
@@ -29,35 +29,44 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/subkriteria/submit', [SubKriteriaController::class, 'store'])->name('subkriteria.submit');
     Route::delete('/subkriteria/delete/{id}', [SubKriteriaController::class, 'destroy'])->name('subkriteria.destroy');
 });
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index');
     Route::get('/vendor/create', [VendorController::class, 'create'])->name('vendor.create');
     Route::post('/vendor/submit', [VendorController::class, 'store'])->name('vendor.submit');
-    Route::get('/vendor/edit/{id}', [VendorController::class, 'edit'])->name('vendor.edit');
-    Route::put('/vendor/update/{id}', [VendorController::class, 'update'])->name('vendor.update');
-    Route::delete('/vendor/delete/{id}', [VendorController::class, 'destroy'])->name('vendor.destroy');
+    Route::get('/vendor/edit/{vendor}', [VendorController::class, 'edit'])->name('vendor.edit');
+    Route::put('/vendor/update/{vendor}', [VendorController::class, 'update'])->name('vendor.update');
+    Route::delete('/vendor/{id}', [VendorController::class, 'destroy'])->name('vendor.destroy');
 });
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('goods-receipts', GoodsReceiptsController::class);
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/purchase-order', [PurchaseOrderController::class, 'index'])->name('purchase.index');
+    Route::get('/purchase-order/create', [PurchaseOrderController::class, 'create'])->name('purchase.create');
+    Route::post('/purchase-order/submit', [PurchaseOrderController::class, 'store'])->name('purchase.submit');
+    Route::get('/purchase-order/edit/{id}', [PurchaseOrderController::class, 'edit'])->name('purchase.edit');
+    Route::put('/purchase-order/update/{id}', [PurchaseOrderController::class, 'update'])->name('purchase.update');
+    Route::delete('/purchase-order/delete/{id}', [PurchaseOrderController::class, 'destroy'])->name('purchase.destroy');
+});
+
 Route::get('/smart-form', [SmartController::class, 'form'])->name('smart.form');
 Route::post('/smart-process', [SmartController::class, 'process'])->name('smart.process');
 
 
-Route::get('/purchase-order', function () {
-    return view('purchase_order.index'); // jika hanya tampilan statis
-})->name('purchase_order.index');
+// Route::get('/purchase-order', function () {
+//     return view('purchase_order.index');
+// })->name('purchase_order.index');
 
-Route::get('/purchase-order/add', function () {
-    return view('purchase_order.add');
-})->name('purchase_order.add');
+// Route::get('/purchase-order/add', function () {
+//     return view('purchase_order.add');
+// })->name('purchase_order.add');
 
 
-Route::get('/purchase-order/edit', function () {
-    return view('purchase_order.edit');
-})->name('purchase_order.edit');
+// Route::get('/purchase-order/edit', function () {
+//     return view('purchase_order.edit');
+// })->name('purchase_order.edit');
 
 
 

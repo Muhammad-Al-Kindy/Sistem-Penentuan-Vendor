@@ -57,10 +57,15 @@
                 </div>
 
                 <!-- Submit -->
-                <div>
-                    <button type="submit" class="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-900 transition">
-                        Buat Vendor
+                <div class="pt-4 flex justify-start gap-3">
+                    <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-md shadow text-sm inline-flex items-center">
+                        <i class="ri-save-line mr-1"></i> Simpan
                     </button>
+                    <a href="{{ route('vendor.index') }}"
+                        class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded shadow text-sm">
+                        <i class="ri-arrow-left-line mr-1"></i> Kembali
+                    </a>
                 </div>
             </form>
         </div>
