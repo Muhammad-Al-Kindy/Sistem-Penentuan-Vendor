@@ -29,8 +29,20 @@ class VendorController extends Controller
 
     public function store(Request $request)
     {
-        $vendor = Vendor::create($request->all());
+        $vendorData = $request->only(['namaVendor', 'alamatVendor', 'NPWP', 'jenisPerusahaan', 'SPPKP', 'nomorIndukPerusahaan']);
+        $vendor = Vendor::create($vendorData);
         Log::info("Added new vendor: ", $vendor->toArray());
+
+        $contactData = $request->only(['contactPerson', 'telepon', 'fax', 'email', 'jabatan']);
+        if (!empty($contactData['contactPerson'])) {
+            $vendor->contacts()->create([
+                'contactPerson' => $contactData['contactPerson'],
+                'telepon' => $contactData['telepon'] ?? null,
+                'fax' => $contactData['fax'] ?? null,
+                'email' => $contactData['email'] ?? null,
+                'jabatan' => $contactData['jabatan'] ?? null,
+            ]);
+        }
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -54,7 +66,30 @@ class VendorController extends Controller
 
     public function update(Request $request, Vendor $vendor)
     {
-        $vendor->update($request->all());
+        $vendor->update($request->only(['namaVendor', 'alamatVendor', 'NPWP', 'jenisPerusahaan', 'SPPKP', 'nomorIndukPerusahaan']));
+
+        $contactData = $request->only(['contactPerson', 'telepon', 'fax', 'email', 'jabatan']);
+        $contact = $vendor->contacts()->first();
+
+        if ($contact) {
+            $contact->update([
+                'contactPerson' => $contactData['contactPerson'] ?? $contact->contactPerson,
+                'telepon' => $contactData['telepon'] ?? $contact->telepon,
+                'fax' => $contactData['fax'] ?? $contact->fax,
+                'email' => $contactData['email'] ?? $contact->email,
+                'jabatan' => $contactData['jabatan'] ?? $contact->jabatan,
+            ]);
+        } else {
+            if (!empty($contactData['contactPerson'])) {
+                $vendor->contacts()->create([
+                    'contactPerson' => $contactData['contactPerson'],
+                    'telepon' => $contactData['telepon'] ?? null,
+                    'fax' => $contactData['fax'] ?? null,
+                    'email' => $contactData['email'] ?? null,
+                    'jabatan' => $contactData['jabatan'] ?? null,
+                ]);
+            }
+        }
 
         if ($request->expectsJson()) {
             return response()->json([

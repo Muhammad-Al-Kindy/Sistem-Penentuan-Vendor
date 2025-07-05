@@ -19,8 +19,8 @@ return new class extends Migration
             $table->integer('kuantitas');
             $table->decimal('hargaPerUnit', 15, 2);
             $table->string('mataUang');
-            $table->integer('vat');
-            $table->date('batasDiterima');
+            $table->integer('vat')->nullable();
+            $table->date('batasDiterima')->nullable();
             $table->decimal('total', 15, 2);
             $table->timestamps();
 

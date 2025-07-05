@@ -16,11 +16,11 @@ return new class extends Migration
             $table->unsignedBigInteger('vendorId');
             $table->string('noPO');
             $table->date('tanggalPO');
-            $table->string('noKontrak');
-            $table->string('noRevisi');
+            $table->string('noKontrak')->nullable();
+            $table->string('noRevisi')->nullable();
             $table->date('tanggalRevisi')->nullable();
             $table->string('incoterm')->nullable();
-            $table->unsignedBigInteger('created_by');
+            $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
 
             $table->foreign('vendorId')->references('idVendor')->on('vendors')->onDelete('cascade');

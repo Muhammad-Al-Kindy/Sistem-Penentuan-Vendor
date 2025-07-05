@@ -5,11 +5,13 @@
 @section('content')
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Breadcrumb -->
-        <nav class="text-sm text-gray-500 mb-6">
-            <a href="#" class="hover:underline">Home</a>
-            <span class="mx-2">/</span>
-            <span>Purchase Order</span>
-        </nav>
+        @php
+            $breadcrumbItems = [
+                ['label' => 'Home', 'url' => route('purchase.index')],
+                ['label' => 'Purchase Order', 'url' => ''],
+            ];
+        @endphp
+        <x-breadcrumb :items="$breadcrumbItems" />
 
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Daftar Purchase Order</h1>

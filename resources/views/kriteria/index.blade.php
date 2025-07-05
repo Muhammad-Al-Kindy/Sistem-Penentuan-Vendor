@@ -5,11 +5,15 @@
 @section('content')
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Breadcrumb -->
-        <nav class="text-sm text-gray-500 mb-6">
-            <a href="#" class="hover:underline">Home</a>
-            <span class="mx-2">/</span>
-            <span>Kriteria</span>
-        </nav>
+        <!-- Breadcrumb -->
+        @php
+            $breadcrumbItems = [
+                ['label' => 'Home', 'url' => route('kriteria.index')],
+                ['label' => 'Kriteria', 'url' => ''],
+            ];
+        @endphp
+        <x-breadcrumb :items="$breadcrumbItems" />
+
 
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">

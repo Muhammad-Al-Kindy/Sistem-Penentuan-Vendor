@@ -57,18 +57,22 @@
                             <td class="px-6 py-4 whitespace-nowrap">{{ $vendor->alamatVendor }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex justify-center gap-2">
-                                    <a href="{{ route('vendor.edit', $vendor->idVendor) }}"
-                                        class="text-yellow-600 hover:text-yellow-800">
-                                        <i class="ri-edit-box-line text-lg"></i>
-                                    </a>
-                                    <form action="{{ route('vendor.destroy', $vendor->idVendor) }}" method="POST"
-                                        data-delete-form>
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800">
-                                            <i class="ri-delete-bin-line text-lg"></i>
-                                        </button>
-                                    </form>
+                                    @if (isset($vendor->idVendor) && $vendor->idVendor)
+                                        <a href="{{ route('vendor.edit', $vendor->idVendor) }}"
+                                            class="text-yellow-600 hover:text-yellow-800">
+                                            <i class="ri-edit-box-line text-lg"></i>
+                                        </a>
+                                        <form action="{{ route('vendor.destroy', $vendor->idVendor) }}" method="POST"
+                                            data-delete-form>
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-800">
+                                                <i class="ri-delete-bin-line text-lg"></i>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-gray-400">Invalid Vendor ID</span>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

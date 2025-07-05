@@ -9,8 +9,8 @@
             <h1 class="text-2xl font-bold text-gray-800 mb-6">Tambah Purchase Order</h1>
 
             <!-- Form -->
-            <form action="#" method="POST" class="space-y-6" data-store-form>
-                {{-- @csrf --}}
+            <form action="{{ route('purchase.submit') }}" method="POST" class="space-y-6" data-store-form>
+                @csrf
 
                 <!-- Nama Vendor -->
                 <div>
@@ -24,18 +24,18 @@
                     </select>
                 </div>
 
-                <!-- Nama Barang -->
+                <!-- No PO -->
                 <div>
-                    <label for="namaBarang" class="block mb-1 font-medium text-gray-700">Nama Barang</label>
-                    <input type="text" name="namaBarang" id="namaBarang"
+                    <label for="noPO" class="block mb-1 font-medium text-gray-700">No PO</label>
+                    <input type="text" name="noPO" id="noPO"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Contoh: Kabel Listrik 20m" required>
+                        placeholder="Nomor Purchase Order" required>
                 </div>
 
-                <!-- Tanggal Order -->
+                <!-- Tanggal PO -->
                 <div>
-                    <label for="tanggalOrder" class="block mb-1 font-medium text-gray-700">Tanggal Order</label>
-                    <input type="date" name="tanggalOrder" id="tanggalOrder"
+                    <label for="tanggalPO" class="block mb-1 font-medium text-gray-700">Tanggal PO</label>
+                    <input type="date" name="tanggalPO" id="tanggalPO"
                         class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         required>
                 </div>

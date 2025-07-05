@@ -19,7 +19,7 @@ class PurchaseOrder extends Model
     // PurchaseOrder.php
     public function items()
     {
-        return $this->hasMany(PurchaseOrderItem::class);
+        return $this->hasMany(PurchaseOrderItem::class, 'purchaseOrderId', 'idPurchaseOrder');
     }
 
     public function rfq()

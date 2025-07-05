@@ -72,13 +72,13 @@ class PurchaseOrderController extends Controller
             foreach ($validatedData['items'] as $item) {
                 $materialVendorPrice = MaterialVendorPrice::findOrFail($item['materialVendorPriceId']);
                 $purchaseOrder->items()->create([
-                    'materialId' => $materialVendorPrice->materialId,
-                    'materialVendorPriceId' => $materialVendorPrice->harga,
+                    'materialId' => $item['materialId'],
+                    'materialVendorPriceId' => $materialVendorPrice->idMaterialVendorPrice,
                     'kuantitas' => $item['kuantitas'],
                     'hargaPerUnit' => $item['hargaPerUnit'],
                     'mataUang' => $item['mataUang'],
-                    'vat' => $item['vat'] ?? 0,
-                    'batasDiterima' => $item['batasDiterima'] ?? null,
+                    'vat' => isset($item['vat']) ? $item['vat'] : 0,
+                    'batasDiterima' => !empty($item['batasDiterima']) ? $item['batasDiterima'] : null,
                     'total' => $item['total'],
                 ]);
             }
@@ -114,10 +114,11 @@ class PurchaseOrderController extends Controller
         return view('vendors.show', compact('vendors'));
     }
 
-    public function edit(PurchaseOrder $vendors)
+    public function edit(PurchaseOrder $purchaseOrder)
     {
-        $vendor = PurchaseOrder::findOrFail($vendors);
-        return view('vendor.edit', compact('vendor'));
+        $purchaseOrder->load('items.item'); // eager load items and related materials
+        $vendor = $purchaseOrder->vendor; // get related vendor
+        return view('purchase_order.edit', compact('purchaseOrder', 'vendor'));
     }
 
     public function update(Request $request)

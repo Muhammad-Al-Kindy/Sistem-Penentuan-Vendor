@@ -7,6 +7,17 @@ document.addEventListener("DOMContentLoaded", function () {
         form.addEventListener("submit", async function (e) {
             e.preventDefault();
 
+            const action = form.getAttribute("action");
+            if (!action || action.includes("undefined")) {
+                console.error("Invalid delete action URL:", action);
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid Delete Request",
+                    text: "Delete action URL is invalid or undefined.",
+                });
+                return;
+            }
+
             const result = await Swal.fire({
                 title: "Yakin ingin menghapus?",
                 text: "Data yang dihapus tidak bisa dikembalikan!",
@@ -19,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             if (result.isConfirmed) {
-                const action = form.getAttribute("action");
                 console.log("Delete action URL:", action);
                 const token = form.querySelector('input[name="_token"]').value;
 
