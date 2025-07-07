@@ -51,23 +51,23 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($order as $index => $orders)
+                    @forelse($order as $index => $orderItem)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $orders->noPO }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $orders->tanggalPO }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $orders->vendor->namaVendor ?? '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $orders->noKontrak }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $orders->incoterm }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $orderItem->noPO }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $orderItem->tanggalPO }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $orderItem->vendor->namaVendor ?? '-' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $orderItem->noKontrak ?? '-' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $orderItem->incoterm ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                {{ $orders->vendor->contacts->first()->contactPerson ?? '-' }}</td>
+                                {{ $orderItem->vendor->contacts->first()->contactPerson ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex justify-center gap-2">
-                                    <a href="{{ route('purchase.edit', $orders->idPurchaseOrder) }}"
+                                    <a href="{{ route('purchase.edit', $orderItem->idPurchaseOrder) }}"
                                         class="text-yellow-600 hover:text-yellow-800">
                                         <i class="ri-edit-box-line text-lg"></i>
                                     </a>
-                                    <form action="{{ route('purchase.destroy', $orders->idPurchaseOrder) }}" method="POST"
-                                        data-delete-form>
+                                    <form action="{{ route('purchase.destroy', $orderItem->idPurchaseOrder) }}"
+                                        method="POST" data-delete-form>
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-800">

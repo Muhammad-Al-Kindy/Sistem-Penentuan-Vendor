@@ -4,9 +4,21 @@
 
 @section('content')
     <div id="app" data-subkriteria-url="{{ route('vendor.index') }}" class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Breadcrumb -->
+        @php
+            $breadcrumbItems = [
+                ['label' => 'Home', 'url' => route('kriteria.index')],
+                ['label' => 'Vendor', 'url' => route('vendor.index')],
+                ['label' => 'Add Vendor', 'url' => ''],
+            ];
+        @endphp
+        <x-breadcrumb :items="$breadcrumbItems" />
+
+        <!-- Title -->
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Add Vendor and Contact</h1>
         <div class="bg-white shadow-md rounded-lg p-6">
-            <!-- Title -->
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">Tambah Vendor dan Kontak</h1>
+
+
 
             <!-- Form -->
             <form action="{{ route('vendor.submit') }}" method="POST" class="space-y-6" data-store-form>

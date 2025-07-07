@@ -5,7 +5,6 @@
 @section('content')
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Breadcrumb -->
-        <!-- Breadcrumb -->
         @php
             $breadcrumbItems = [
                 ['label' => 'Home', 'url' => route('kriteria.index')],

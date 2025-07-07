@@ -8,6 +8,7 @@ use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\SubKriteriaController;
 use App\Http\Controllers\SmartController;
 use App\Http\Controllers\VendorController;
+use App\Http\Controllers\MaterialController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.post');
@@ -49,6 +50,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/purchase-order/edit/{purchaseOrder}', [PurchaseOrderController::class, 'edit'])->name('purchase.edit');
     Route::put('/purchase-order/update/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->name('purchase.update');
     Route::delete('/purchase-order/delete/{id}', [PurchaseOrderController::class, 'destroy'])->name('purchase.destroy');
+
+    // Add route for material vendor prices API
+    Route::get('/material-vendor-prices', [PurchaseOrderController::class, 'getMaterialVendorPrices'])->name('material.vendor.prices');
+
+    // Add route for creating new material
+    Route::post('/materials', [MaterialController::class, 'store'])->name('materials.store');
 });
 
 Route::get('/smart-form', [SmartController::class, 'form'])->name('smart.form');

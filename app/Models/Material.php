@@ -9,7 +9,8 @@ class Material extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
+    // Enable timestamps for created_at and updated_at
+    public $timestamps = true;
 
     protected $primaryKey = 'idMaterial';
 

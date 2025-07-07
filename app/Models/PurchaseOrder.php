@@ -24,7 +24,7 @@ class PurchaseOrder extends Model
 
     public function rfq()
     {
-        return $this->hasOne(Rfqs::class);
+        return $this->hasOne(Rfqs::class, 'purchaseOrderId', 'idPurchaseOrder');
     }
 
     public function receipts()

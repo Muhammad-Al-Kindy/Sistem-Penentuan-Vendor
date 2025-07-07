@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('rfqs', function (Blueprint $table) {
             $table->id('idrfqs');
             $table->unsignedBigInteger('purchaseOrderId');
-            $table->string('no_rfq');
-            $table->string('rfq_collective');
-            $table->string('referensi_sph');
-            $table->string('no_justifikasi');
-            $table->string('no_negosiasi');
+            $table->string('no_rfq')->nullable();
+            $table->string('rfq_collective')->nullable();
+            $table->string('referensi_sph')->nullable();
+            $table->string('no_justifikasi')->nullable();
+            $table->string('no_negosiasi')->nullable();
             $table->timestamps();
 
             $table->foreign('purchaseOrderId')->references('idPurchaseOrder')->on('purchase_orders')->onDelete('cascade');

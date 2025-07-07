@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use App\Models\Vendor;
+use App\Models\Material;
 
 class MaterialVendorPriceSeeder extends Seeder
 {
@@ -12,25 +14,24 @@ class MaterialVendorPriceSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('material_vendor_prices')->insert([
-            [
-                'materialId' => 1,
-                'vendorId' => 1,
-                'harga' => 10000.00,
-                'mataUang' => 'IDR',
-            ],
-            [
-                'materialId' => 2,
-                'vendorId' => 1,
-                'harga' => 15000.00,
-                'mataUang' => 'IDR',
-            ],
-            [
-                'materialId' => 3,
-                'vendorId' => 2,
-                'harga' => 20000.00,
-                'mataUang' => 'IDR',
-            ],
-        ]);
+        $materials = Material::all();
+
+        $prices = [];
+
+        foreach ($materials as $material) {
+            $vendors = Vendor::all();
+            foreach ($vendors as $vendor) {
+                $prices[] = [
+                    'materialId' => $material->idMaterial,
+                    'vendorId' => $vendor->idVendor,
+                    'harga' => rand(10000, 50000), // Random price between 10k and 50k
+                    'mataUang' => 'IDR',
+                ];
+            }
+        }
+
+        if (!empty($prices)) {
+            DB::table('material_vendor_prices')->insert($prices);
+        }
     }
 }
