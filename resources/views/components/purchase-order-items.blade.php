@@ -185,10 +185,12 @@
                         this.vendorId = vendorSelect.value;
                         this.vendorName = vendorSelect.options[vendorSelect.selectedIndex].text;
                         this.items.forEach((_, index) => this.fetchMaterialVendorPrice(index));
+                        this.fetchMaterialsByVendor();
                     });
                 }
 
                 this.items.forEach((_, index) => this.fetchMaterialVendorPrice(index));
+                this.fetchMaterialsByVendor();
             },
 
             addItem() {

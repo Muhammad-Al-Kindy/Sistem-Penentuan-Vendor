@@ -56,6 +56,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Add route for creating new material
     Route::post('/materials', [MaterialController::class, 'store'])->name('materials.store');
+
+    // Add route for getting materials filtered by vendor
+    Route::get('/materials-by-vendor', [MaterialController::class, 'getByVendor'])->name('materials.by.vendor');
 });
 
 Route::get('/smart-form', [SmartController::class, 'form'])->name('smart.form');
