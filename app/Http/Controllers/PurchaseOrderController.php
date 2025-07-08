@@ -173,9 +173,15 @@ class PurchaseOrderController extends Controller
         return redirect()->route('purchase.index')->with('success', 'Purchase order berhasil diperbarui.');
     }
 
-    public function destroy(PurchaseOrder $vendors)
+    public function destroy($id)
     {
-        $vendors->delete();
-        return redirect()->route('vendors.index')->with('success', 'Vendors berhasil dihapus.');
+        try {
+            $purchaseOrder = PurchaseOrder::findOrFail($id);
+            $purchaseOrder->delete();
+            return redirect()->route('purchase.index')->with('success', 'Purchase order berhasil dihapus.');
+        } catch (\Exception $e) {
+            Log::error('Failed to delete purchase order: ' . $e->getMessage());
+            return redirect()->route('purchase.index')->with('error', 'Gagal menghapus purchase order.');
+        }
     }
 }
