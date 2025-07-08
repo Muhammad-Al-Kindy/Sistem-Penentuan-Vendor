@@ -100,11 +100,6 @@
                                         <input type="text" x-model="newMaterial.mataUang" placeholder="Mata Uang"
                                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
                                     </div>
-                                    <div class="mb-3">
-                                        <input type="number" step="0.01" min="0" x-model="newMaterial.vat"
-                                            placeholder="VAT"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </div>
 
                                     <!-- Error Message -->
                                     <template x-if="addMaterialError">
@@ -308,9 +303,8 @@
                                 namaMaterial: '',
                                 satuanMaterial: '',
                                 deskripsiMaterial: '',
-                                harga: 0,
-                                mataUang: '',
-                                vat: 0
+                                harga: '',
+                                mataUang: ''
                             };
                         })
                         .catch(error => {
