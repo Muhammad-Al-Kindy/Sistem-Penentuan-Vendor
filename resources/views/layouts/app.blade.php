@@ -9,7 +9,12 @@
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
 
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
+    <script>
+        window.materials = @json($materials ?? []);
+        console.log('window.materials:', window.materials);
+    </script>
 </head>
 
 <body class="bg-gray-100">

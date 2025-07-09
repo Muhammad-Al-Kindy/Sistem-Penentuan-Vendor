@@ -20,9 +20,10 @@
             <h2 class="text-2xl font-bold mb-6 text-gray-800">Edit Sub Kriteria</h2>
             <!-- Form -->
             <form action="{{ route('subkriteria.update', $subkriteria->idSubKriteria) }}" method="POST" class="space-y-6"
-                data-update-form data-redirect-url="{{ route('subkriteria.index') }}">
+                data-update-subkriteria-form data-redirect-url="{{ route('subkriteria.index') }}">
                 @csrf
                 @method('PUT')
+                <input type="hidden" name="id" value="{{ $subkriteria->idSubKriteria }}">
 
                 <!-- Nama -->
                 <div>

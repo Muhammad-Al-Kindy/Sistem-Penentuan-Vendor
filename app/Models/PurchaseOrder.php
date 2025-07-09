@@ -13,6 +13,10 @@ class PurchaseOrder extends Model
 
     protected $fillable = ['vendorId', 'noPO', 'tanggalPO', 'noKontrak', 'noRevisi', 'tanggalRevisi', 'incoterm', 'created_by'];
 
+    protected $casts = [
+        'tanggalPO' => 'date',
+        'tanggalRevisi' => 'date',
+    ];
 
     public $timestamps = true;
 

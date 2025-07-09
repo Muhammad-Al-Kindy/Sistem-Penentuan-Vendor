@@ -13,6 +13,9 @@ class PurchaseOrderItem extends Model
 
     protected $fillable = ['purchaseOrderId', 'materialId', 'materialVendorPriceId', 'kuantitas', 'hargaPerUnit', 'mataUang', 'vat', 'batasDiterima', 'total'];
 
+    protected $casts = [
+        'batasDiterima' => 'date',
+    ];
 
     public $timestamps = true;
 
@@ -24,7 +27,7 @@ class PurchaseOrderItem extends Model
 
     public function item()
     {
-        return $this->belongsTo(Material::class);
+        return $this->belongsTo(Material::class, 'materialId', 'idMaterial');
     }
 
     public function vendorPrice()

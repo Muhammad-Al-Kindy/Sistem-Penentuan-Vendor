@@ -1,19 +1,19 @@
 import Swal from "sweetalert2";
 
 document.addEventListener("DOMContentLoaded", function () {
-    const updateForms = document.querySelectorAll("form[data-update-form]");
+    const updateVendorForms = document.querySelectorAll(
+        "form[data-update-vendor-form]"
+    );
 
-    updateForms.forEach((form) => {
+    updateVendorForms.forEach((form) => {
         const redirectUrl = form.dataset.redirectUrl || null;
 
         form.addEventListener("submit", function (e) {
             e.preventDefault();
 
-            // Override action URL to correct update URL
             const token = form.querySelector('input[name="_token"]').value;
-            const purchaseOrderId =
-                form.querySelector('input[name="id"]').value;
-            const action = `/purchase-order/update/${purchaseOrderId}`;
+            const vendorId = form.querySelector('input[name="id"]').value;
+            const action = `/vendor/update/${vendorId}`;
 
             // Collect form data as JSON
             const formDataObj = {};
@@ -34,21 +34,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
 
-            // Special handling for items array from Alpine.js reactive instance
-            if (window.purchaseOrderItemsComponentInstance) {
-                formDataObj.items =
-                    window.purchaseOrderItemsComponentInstance.items;
-            }
-
-            // Debug: log JSON data
-            console.log("JSON form data:", formDataObj);
-            console.log("Fetch URL:", action);
-
-            // Tambahkan _method ke payload
+            // Add _method for PUT
             formDataObj._method = "PUT";
 
             fetch(action, {
-                method: "PUT",
+                method: "POST", // Use POST with method spoofing
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": token,
@@ -74,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             }
                             throw new Error(errorMessages);
                         } else {
-                            throw new Error("Failed to update");
+                            throw new Error("Failed to update vendor");
                         }
                     }
                     return res.json();
@@ -84,23 +74,26 @@ document.addEventListener("DOMContentLoaded", function () {
                         toast: true,
                         position: "bottom-end",
                         icon: "success",
-                        title: "Data berhasil diperbarui!",
+                        title: "Vendor berhasil diperbarui!",
                         showConfirmButton: false,
                         timer: 1000,
                         timerProgressBar: true,
                     }).then(() => {
-                        // Redirect to index page after successful update
-                        window.location.href = "/purchase-order";
+                        if (redirectUrl) {
+                            window.location.href = redirectUrl;
+                        } else {
+                            window.location.href = "/vendor";
+                        }
                     });
                 })
                 .catch((error) => {
-                    console.error("Update failed", error);
+                    console.error("Vendor update failed", error);
                     Swal.fire({
                         icon: "error",
                         title: "Gagal",
                         text:
                             error.message ||
-                            "Terjadi kesalahan saat memperbarui data.",
+                            "Terjadi kesalahan saat memperbarui vendor.",
                     });
                 });
         });

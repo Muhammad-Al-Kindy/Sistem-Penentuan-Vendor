@@ -102,9 +102,12 @@
     </div>
 
     <script>
+        window.initialItems = @json(old('items', [])); // Jika gagal submit, tetap isi ulang
+        window.initialVendorId = @json(old('vendorId')); // Ambil dari old input
         window.vendors = @json($vendors);
-        window.materials = @json($materials);
+        window.materials = @json($materials); // all materials initially
     </script>
+
 
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 @endsection

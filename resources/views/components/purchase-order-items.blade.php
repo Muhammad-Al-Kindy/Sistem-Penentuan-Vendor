@@ -1,5 +1,8 @@
-<!-- MATERIAL TABLE DYNAMIC -->
-<div x-data="purchaseOrderItems()" x-init="init()" class="mt-6">
+<!-- PURCHASE ORDER ITEMS COMPONENT -->
+<div x-data="purchaseOrderItemsComponent()" x-init="() => {
+    window.purchaseOrderItemsComponentInstance = $data;
+    initializeData();
+}" class="mt-6">
     <div class="flex justify-between items-center mb-2">
         <h2 class="text-md font-semibold">Material</h2>
         <button type="button" @click="addItem"
@@ -24,105 +27,19 @@
                 <template x-for="(item, index) in items" :key="index">
                     <tr>
                         <td class="px-4 py-2">
+                            <input type="hidden" :name="`items[${index}][id]`" x-model="item.id" />
+
                             <select :name="`items[${index}][materialId]`" x-model="item.materialId"
                                 class="w-full border border-gray-300 rounded px-2 py-1 focus:ring-blue-500"
-                                @change="onMaterialChange(index)">
-                                <option value="" disabled selected>Pilih Material</option>
-                                <template x-for="material in materials" :key="material.idMaterial">
-                                    <option :value="material.idMaterial" x-text="material.namaMaterial"></option>
+                                @change="onMaterialChange(index)" required>
+                                <option value="" disabled>Pilih Material</option>
+                                <template x-for="material in mappedMaterials" :key="material.id">
+                                    <option :value="material.id" x-text="material.name"
+                                        :selected="material.id.toString() === item.materialId.toString()">
+                                    </option>
                                 </template>
                                 <option value="add_new">+ Tambah Material Baru</option>
                             </select>
-
-                            <!-- Modal for adding new material -->
-                            <!-- Modal Tambah Material -->
-                            <div x-show="showAddMaterialModal" x-cloak
-                                class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
-                                @keydown.window.escape="showAddMaterialModal = false"
-                                x-transition:enter="transition ease-out duration-200"
-                                x-transition:enter-start="opacity-0 scale-95"
-                                x-transition:enter-end="opacity-100 scale-100"
-                                x-transition:leave="transition ease-in duration-150"
-                                x-transition:leave-start="opacity-100 scale-100"
-                                x-transition:leave-end="opacity-0 scale-95">
-
-                                <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg mx-4">
-                                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Tambah Material Baru</h2>
-
-                                    <!-- Vendor Selection -->
-                                    <div class="mb-3">
-                                        <label for="vendorSelect"
-                                            class="block text-gray-700 font-medium mb-1">Vendor</label>
-                                        <select id="vendorSelect" x-model="newMaterial.vendorId"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            <option value="" disabled>Pilih Vendor</option>
-                                            @foreach ($vendors as $vendor)
-                                                <option value="{{ $vendor->idVendor }}">{{ $vendor->namaVendor }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-                                    <!-- Kode Material -->
-                                    <div class="mb-3">
-                                        <input type="text" x-model="newMaterial.kodeMaterial"
-                                            placeholder="Kode Material"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </div>
-
-                                    <!-- Nama Material -->
-                                    <div class="mb-3">
-                                        <input type="text" x-model="newMaterial.namaMaterial"
-                                            placeholder="Nama Material"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </div>
-
-                                    <!-- Satuan Material -->
-                                    <div class="mb-3">
-                                        <input type="text" x-model="newMaterial.satuanMaterial"
-                                            placeholder="Satuan Material"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </div>
-
-                                    <!-- Deskripsi Material -->
-                                    <div class="mb-4">
-                                        <textarea x-model="newMaterial.deskripsiMaterial" placeholder="Deskripsi Material"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
-                                    </div>
-
-                                    <!-- Material Vendor Price Fields -->
-                                    <div class="mb-3">
-                                        <input type="number" step="0.01" min="0" x-model="newMaterial.harga"
-                                            placeholder="Harga"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </div>
-                                    <div class="mb-3">
-                                        <input type="text" x-model="newMaterial.mataUang" placeholder="Mata Uang"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </div>
-
-                                    <!-- Error Message -->
-                                    <template x-if="addMaterialError">
-                                        <p class="text-red-600 text-sm mb-3" x-text="addMaterialError"></p>
-                                    </template>
-
-                                    <!-- Action Buttons -->
-                                    <div class="flex justify-end gap-2">
-                                        <button type="button"
-                                            @click="showAddMaterialModal = false;
-                        newMaterial = {kodeMaterial: '', namaMaterial: '', satuanMaterial: '', deskripsiMaterial: '', harga: 0, mataUang: '', vat: 0};
-                        addMaterialError = '';"
-                                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition text-sm">
-                                            Batal
-                                        </button>
-                                        <button type="button" @click="addNewMaterial"
-                                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm">
-                                            Simpan
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
                             <input type="hidden" :name="`items[${index}][materialVendorPriceId]`"
                                 x-model="item.materialVendorPriceId" />
                         </td>
@@ -144,8 +61,7 @@
                                 placeholder="VAT">
                         </td>
                         <td class="px-4 py-2">
-                            <input type="date" :name="`items[${index}][batasDiterima]`"
-                                x-model="item.batasDiterima"
+                            <input type="date" :name="`items[${index}][batasDiterima]`" x-model="item.batasDiterima"
                                 class="w-full border border-gray-300 rounded px-2 py-1 focus:ring-blue-500">
                         </td>
                         <td class="px-4 py-2 text-center">
@@ -161,184 +77,116 @@
         </table>
     </div>
 
-
     <script>
-        function purchaseOrderItems() {
+        function purchaseOrderItemsComponent() {
             return {
-                items: [{
-                    materialId: '',
-                    materialVendorPriceId: '',
-                    kuantitas: '',
-                    mataUang: '',
-                    vat: '',
-                    batasDiterima: ''
-                }],
-                vendorId: null,
-                vendorName: '',
+                items: [],
+                selectedVendorId: null,
+                vendors: [],
+                materials: [],
+                showAddMaterialModal: false,
 
-                init() {
+                get mappedMaterials() {
+                    return this.materials.map(m => ({
+                        id: m.idMaterial,
+                        name: m.namaMaterial
+                    }));
+                },
+
+                initializeData() {
+                    this.items = window.initialItems.map(i => ({
+                        id: i.id || i.idPurchaseOrderItem || '', // PERBAIKAN
+                        materialId: i.materialId?.toString() || '',
+                        materialVendorPriceId: i.materialVendorPriceId?.toString() || '',
+                        kuantitas: i.kuantitas,
+                        mataUang: i.mataUang,
+                        vat: i.vat,
+                        batasDiterima: i.batasDiterima?.split('T')[0] || ''
+                    }));
+
+                    console.log('Alpine initialized items:', this.items);
+
+                    this.selectedVendorId = window.initialVendorId;
+                    this.vendors = window.vendors;
+                    this.materials = window.materials;
+
+                    if (this.selectedVendorId) {
+                        this.fetchMaterialsByVendor();
+                    }
+
                     const vendorSelect = document.getElementById('vendorId');
-                    this.vendorId = vendorSelect ? vendorSelect.value : null;
-                    this.vendorName = vendorSelect ? vendorSelect.options[vendorSelect.selectedIndex].text : '';
-                    console.log('Init vendorId:', this.vendorId);
-
                     if (vendorSelect) {
                         vendorSelect.addEventListener('change', () => {
-                            this.vendorId = vendorSelect.value;
-                            this.vendorName = vendorSelect.options[vendorSelect.selectedIndex].text;
-                            console.log('Vendor changed to:', this.vendorId);
-                            this.items.forEach((_, index) => this.fetchMaterialVendorPrice(index));
+                            this.selectedVendorId = vendorSelect.value;
                             this.fetchMaterialsByVendor();
+                            this.items.forEach((_, index) => this.fetchMaterialVendorPrice(index));
                         });
                     }
 
                     this.items.forEach((_, index) => this.fetchMaterialVendorPrice(index));
-                    this.fetchMaterialsByVendor();
                 },
+
 
                 addItem() {
                     this.items.push({
+                        id: '', // PENTING untuk validasi
                         materialId: '',
                         materialVendorPriceId: '',
                         kuantitas: '',
                         mataUang: '',
-                        vat: '',
+                        vat: 0,
                         batasDiterima: ''
                     });
                 },
 
                 removeItem(index) {
-                    if (this.items.length > 1) {
-                        this.items.splice(index, 1);
-                    }
-                },
-
-                fetchMaterialVendorPrice(index) {
-                    const item = this.items[index];
-                    if (!this.vendorId || !item.materialId) {
-                        item.materialVendorPriceId = '';
-                        return;
-                    }
-
-                    fetch(`/material-vendor-prices?vendorId=${this.vendorId}&materialId=${item.materialId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.length > 0) {
-                                item.materialVendorPriceId = data[0].idMaterialVendorPrice;
-                            } else {
-                                item.materialVendorPriceId = '';
-                            }
-                        })
-                        .catch(() => {
-                            item.materialVendorPriceId = '';
-                        });
+                    if (this.items.length > 1) this.items.splice(index, 1);
                 },
 
                 onMaterialChange(index) {
                     const item = this.items[index];
                     if (item.materialId === 'add_new') {
                         this.showAddMaterialModal = true;
-                        // Reset the selected material to empty to avoid invalid selection
                         item.materialId = '';
                     } else {
                         this.fetchMaterialVendorPrice(index);
                     }
                 },
 
-                addNewMaterial() {
-                    if (!this.newMaterial.kodeMaterial.trim()) {
-                        this.addMaterialError = 'Kode material tidak boleh kosong.';
-                        return;
-                    }
-                    if (!this.newMaterial.namaMaterial.trim()) {
-                        this.addMaterialError = 'Nama material tidak boleh kosong.';
-                        return;
-                    }
-                    if (!this.newMaterial.satuanMaterial.trim()) {
-                        this.addMaterialError = 'Satuan material tidak boleh kosong.';
-                        return;
-                    }
-                    this.addMaterialError = '';
+                fetchMaterialVendorPrice(index) {
+                    const item = this.items[index];
+                    if (!this.selectedVendorId || !item.materialId) return;
 
-                    // Include vendorId and vendorName in the newMaterial object
-                    const payload = {
-                        ...this.newMaterial,
-                        vendorId: this.newMaterial.vendorId,
-                        vendorName: this.vendorName
-                    };
-
-                    fetch('/materials', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                                    'content')
-                            },
-                            body: JSON.stringify(payload)
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(data => {
-                                    if (data.errors) {
-                                        this.addMaterialError = Object.values(data.errors).flat().join(' ');
-                                    } else {
-                                        this.addMaterialError = 'Unknown error occurred.';
-                                        console.error('Error response:', data);
-                                    }
-                                    throw new Error(this.addMaterialError);
-                                });
-                            }
-                            return response.json();
-                        })
+                    fetch(`/material-vendor-prices?vendorId=${this.selectedVendorId}&materialId=${item.materialId}`)
+                        .then(res => res.json())
                         .then(data => {
-                            // Add new material to materials list and select it
-                            this.materials.push(data.material);
-                            // Find the last added item and set its materialId to new material's id
-                            const lastIndex = this.items.length - 1;
-                            this.items[lastIndex].materialId = data.material.idMaterial;
-                            this.showAddMaterialModal = false;
-                            this.newMaterial = {
-                                kodeMaterial: '',
-                                namaMaterial: '',
-                                satuanMaterial: '',
-                                deskripsiMaterial: '',
-                                harga: '',
-                                mataUang: ''
-                            };
+                            item.materialVendorPriceId = data[0]?.idMaterialVendorPrice || '';
                         })
-                        .catch(error => {
-                            console.error('Error adding material:', error);
+                        .catch(() => {
+                            item.materialVendorPriceId = '';
                         });
                 },
 
                 fetchMaterialsByVendor() {
-                    if (!this.vendorId) {
+                    if (!this.selectedVendorId) {
                         this.materials = window.materials;
                         return;
                     }
-                    fetch(`/materials-by-vendor?vendorId=${this.vendorId}`)
+
+                    fetch(`/materials-by-vendor?vendorId=${this.selectedVendorId}`)
                         .then(response => response.json())
                         .then(data => {
-                            this.materials = data.materials;
-                            // Reset materialId for all items to force re-selection
-                            this.items.forEach(item => item.materialId = '');
+                            this.materials = data.materials || [];
+
+                            this.items.forEach(item => {
+                                if (!item.materialId) item.materialId = '';
+                            });
                         })
                         .catch(() => {
                             this.materials = window.materials;
                         });
-                },
-
-                // Add new reactive properties
-                showAddMaterialModal: false,
-                newMaterial: {
-                    kodeMaterial: '',
-                    namaMaterial: '',
-                    satuanMaterial: '',
-                    deskripsiMaterial: ''
-                },
-                addMaterialError: '',
-                materials: window.materials
-            }
+                }
+            };
         }
     </script>
+</div>

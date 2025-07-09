@@ -20,7 +20,7 @@ class PurchaseOrderController extends Controller
             $query->whereHas('vendor', function ($query) use ($search) {
                 $query->where('namaVendor', 'like', "%{$search}%");
             });
-        })->paginate(10); // Show 10 per page
+        })->paginate(10);
 
         return view('purchase_order.index', compact('order'));
     }
@@ -34,7 +34,7 @@ class PurchaseOrderController extends Controller
             return response()->json(['error' => 'materialId and vendorId are required'], 400);
         }
 
-        $prices = \App\Models\MaterialVendorPrice::where('materialId', $materialId)
+        $prices = MaterialVendorPrice::where('materialId', $materialId)
             ->where('vendorId', $vendorId)
             ->get();
 
@@ -67,18 +67,12 @@ class PurchaseOrderController extends Controller
             'items.*.materialId' => 'required|exists:materials,idMaterial',
             'items.*.materialVendorPriceId' => 'required|exists:material_vendor_prices,idMaterialVendorPrice',
             'items.*.kuantitas' => 'required|numeric|min:1',
-            'items.*.hargaPerUnit' => 'nullable|numeric|min:0',
-            'items.*.mataUang' => 'nullable|string|max:10',
-            'items.*.vat' => 'nullable|numeric|min:0',
             'items.*.batasDiterima' => 'nullable|date',
-            'items.*.total' => 'nullable|numeric|min:0',
         ]);
 
         DB::beginTransaction();
 
         try {
-            Log::info('PurchaseOrder store called with data:', $validatedData);
-
             $purchaseOrder = PurchaseOrder::create([
                 'vendorId' => $validatedData['vendorId'],
                 'noPO' => $validatedData['noPO'],
@@ -91,13 +85,13 @@ class PurchaseOrderController extends Controller
             ]);
 
             foreach ($validatedData['items'] as $item) {
-                Log::info('Processing item:', $item);
                 $materialVendorPrice = MaterialVendorPrice::findOrFail($item['materialVendorPriceId']);
                 $hargaPerUnit = $materialVendorPrice->harga;
                 $mataUang = $materialVendorPrice->mataUang;
                 $vat = $materialVendorPrice->vat ?? 0;
                 $kuantitas = $item['kuantitas'];
                 $total = $hargaPerUnit * $kuantitas;
+
                 $purchaseOrder->items()->create([
                     'materialId' => $item['materialId'],
                     'materialVendorPriceId' => $materialVendorPrice->idMaterialVendorPrice,
@@ -105,72 +99,133 @@ class PurchaseOrderController extends Controller
                     'hargaPerUnit' => $hargaPerUnit,
                     'mataUang' => $mataUang,
                     'vat' => $vat,
-                    'batasDiterima' => !empty($item['batasDiterima']) ? $item['batasDiterima'] : null,
+                    'batasDiterima' => $item['batasDiterima'] ?? null,
                     'total' => $total,
                 ]);
             }
 
-            // Create RFQ record linked to this purchase order
-            $purchaseOrder->rfq()->create([
-                'no_rfq' => $request->input('no_rfq'),
-                'rfq_collective' => $request->input('rfq_collective'),
-                'referensi_sph' => $request->input('referensi_sph'),
-                'no_justifikasi' => $request->input('no_justifikasi'),
-                'no_negosiasi' => $request->input('no_negosiasi'),
-            ]);
-
             DB::commit();
 
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Purchase order berhasil ditambahkan.',
-                    'purchaseOrder' => $purchaseOrder,
-                ]);
-            }
-
-            return redirect()->route('purchase.index')->with('status', 'stored');
+            return response()->json(['success' => true, 'message' => 'Purchase order berhasil ditambahkan.', 'purchaseOrder' => $purchaseOrder]);
         } catch (\Exception $e) {
             DB::rollBack();
-
-            Log::error('PurchaseOrder store error: ' . $e->getMessage(), ['exception' => $e]);
-
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal menambahkan purchase order.',
-                    'error' => $e->getMessage(),
-                ], 500);
-            }
-
-            return redirect()->back()->withErrors('Gagal menambahkan purchase order: ' . $e->getMessage());
+            Log::error('Store error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Gagal menambahkan purchase order.'], 500);
         }
-    }
-
-    public function show(PurchaseOrder $vendors)
-    {
-        return view('vendors.show', compact('vendors'));
     }
 
     public function edit(PurchaseOrder $purchaseOrder)
     {
-        $purchaseOrder->load('items.item'); // eager load items and related materials
-        $vendor = $purchaseOrder->vendor; // get related vendor
+        $purchaseOrder->load('items');
         $vendors = Vendor::all();
         $materials = Material::all();
         $materialVendorPrices = MaterialVendorPrice::all();
-        $rfqs = \App\Models\Rfqs::all();
-        $purchaseOrders = PurchaseOrder::all();
-        $purchaseOrderItems = \App\Models\PurchaseOrderItem::all();
-        return view('purchase_order.edit', compact('purchaseOrder', 'vendor', 'vendors', 'materials', 'materialVendorPrices', 'rfqs', 'purchaseOrders', 'purchaseOrderItems'));
+        $initialItems = $purchaseOrder->items->map(function ($item) {
+            return [
+                'id' => $item->idPurchaseOrderItem,
+                'materialId' => $item->materialId,
+                'materialVendorPriceId' => $item->materialVendorPriceId,
+                'kuantitas' => $item->kuantitas,
+                'mataUang' => $item->mataUang,
+                'vat' => $item->vat,
+                'batasDiterima' => $item->batasDiterima,
+            ];
+        });
+        $initialVendorId = $purchaseOrder->vendor->idVendor ?? null;
+
+        return view('purchase_order.edit', compact('purchaseOrder', 'vendors', 'materials', 'materialVendorPrices', 'initialItems', 'initialVendorId'));
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
-        // Fix undefined variable $vendors by retrieving the PurchaseOrder instance first
-        $purchaseOrder = PurchaseOrder::findOrFail($request->id);
-        $purchaseOrder->update($request->all());
-        return redirect()->route('purchase.index')->with('success', 'Purchase order berhasil diperbarui.');
+        if ($request->header('Content-Type') === 'application/json') {
+            $data = json_decode($request->getContent(), true);
+            $request->replace($data); // Ini lebih aman daripada merge
+        }
+
+
+        $validatedData = $request->validate([
+            'vendorId' => 'required|exists:vendors,idVendor',
+            'noPO' => 'required|string|max:255',
+            'tanggalPO' => 'required|date',
+            'noKontrak' => 'nullable|string|max:255',
+            'noRevisi' => 'nullable|string|max:255',
+            'tanggalRevisi' => 'nullable|date',
+            'incoterm' => 'nullable|string|max:255',
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'nullable|exists:purchase_order_items,idPurchaseOrderItem',
+            'items.*.materialId' => 'required|exists:materials,idMaterial',
+            'items.*.materialVendorPriceId' => 'required|exists:material_vendor_prices,idMaterialVendorPrice',
+            'items.*.kuantitas' => 'required|numeric|min:1',
+            'items.*.batasDiterima' => 'nullable|date',
+        ]);
+
+        // dd($validatedData);
+
+        DB::beginTransaction();
+
+        try {
+            $purchaseOrder = PurchaseOrder::findOrFail($id);
+            // Convert empty strings to null for nullable date fields
+            $tanggalPO = $validatedData['tanggalPO'] !== '' ? $validatedData['tanggalPO'] : null;
+            $tanggalRevisi = $validatedData['tanggalRevisi'] !== '' ? $validatedData['tanggalRevisi'] : null;
+            $noRevisi = $validatedData['noRevisi'] !== '' ? $validatedData['noRevisi'] : null;
+            $noKontrak = $validatedData['noKontrak'] !== '' ? $validatedData['noKontrak'] : null;
+            $incoterm = $validatedData['incoterm'] !== '' ? $validatedData['incoterm'] : null;
+
+            $purchaseOrder->update([
+                'vendorId' => $validatedData['vendorId'],
+                'noPO' => $validatedData['noPO'],
+                'tanggalPO' => $tanggalPO,
+                'noKontrak' => $noKontrak,
+                'noRevisi' => $noRevisi,
+                'tanggalRevisi' => $tanggalRevisi,
+                'incoterm' => $incoterm,
+            ]);
+
+            foreach ($validatedData['items'] as $itemData) {
+                $materialVendorPrice = MaterialVendorPrice::findOrFail($itemData['materialVendorPriceId']);
+                $hargaPerUnit = $materialVendorPrice->harga;
+                $mataUang = $materialVendorPrice->mataUang;
+                $vat = $materialVendorPrice->vat ?? 0;
+                $total = $hargaPerUnit * $itemData['kuantitas'];
+
+                if (!empty($itemData['id'])) {
+                    $item = \App\Models\PurchaseOrderItem::findOrFail($itemData['id']);
+                    $item->update([
+                        'materialId' => $itemData['materialId'],
+                        'materialVendorPriceId' => $materialVendorPrice->idMaterialVendorPrice,
+                        'kuantitas' => $itemData['kuantitas'],
+                        'hargaPerUnit' => $hargaPerUnit,
+                        'mataUang' => $mataUang,
+                        'vat' => $vat,
+                        'batasDiterima' => $itemData['batasDiterima'],
+                        'total' => $total,
+                    ]);
+                } else {
+                    $purchaseOrder->items()->create([
+                        'materialId' => $itemData['materialId'],
+                        'materialVendorPriceId' => $materialVendorPrice->idMaterialVendorPrice,
+                        'kuantitas' => $itemData['kuantitas'],
+                        'hargaPerUnit' => $hargaPerUnit,
+                        'mataUang' => $mataUang,
+                        'vat' => $vat,
+                        'batasDiterima' => $itemData['batasDiterima'],
+                        'total' => $total,
+                    ]);
+                }
+            }
+
+            DB::commit();
+            Log::info('DATA MASUK:', $request->all());
+
+
+            return response()->json(['success' => true, 'message' => 'Purchase order berhasil diperbarui.', 'purchaseOrder' => $purchaseOrder]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Update error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Gagal memperbarui purchase order.', 'error' => $e->getMessage()], 500);
+        }
     }
 
     public function destroy($id)

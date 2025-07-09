@@ -9,10 +9,11 @@
             <h1 class="text-2xl font-bold text-gray-800 mb-6">Edit Purchase Order</h1>
 
             <!-- Form -->
-            <form action="{{ route('purchase.update', $purchaseOrder->idPurchaseOrder) }}" method="POST" class="space-y-6"
-                data-update-form>
+            <form action="{{ url('/purchase-order/update/' . $purchaseOrder->idPurchaseOrder) }}" method="POST"
+                class="space-y-6" data-update-form>
                 @csrf
                 @method('PUT')
+                <input type="hidden" name="id" value="{{ $purchaseOrder->idPurchaseOrder }}">
 
                 <div class="flex flex-row sm:gap-3 md:gap-10 ">
                     <!-- Nama Vendor -->
@@ -44,7 +45,7 @@
                         <label for="tanggalPO" class="block mb-1 font-medium text-gray-700">Tanggal PO</label>
                         <input type="date" name="tanggalPO" id="tanggalPO"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value="{{ old('tanggalPO', $purchaseOrder->tanggalPO ?? '') }}">
+                            value="{{ old('tanggalPO', $purchaseOrder->tanggalPO ? $purchaseOrder->tanggalPO->format('Y-m-d') : '') }}">
                     </div>
                     <div class="w-full">
                         <label for="noKontrak" class="block mb-1 font-medium text-gray-700">No Kontrak</label>
@@ -59,7 +60,7 @@
                         <label for="tanggalRevisi" class="block mb-1 font-medium text-gray-700">Tanggal Revisi</label>
                         <input type="date" name="tanggalRevisi" id="tanggalRevisi"
                             class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value="{{ old('tanggalRevisi', $purchaseOrder->tanggalRevisi) }}">
+                            value="{{ old('tanggalRevisi', $purchaseOrder->tanggalRevisi ? $purchaseOrder->tanggalRevisi->format('Y-m-d') : '') }}">
                     </div>
                     <div class="w-full">
                         <label for="noRevisi" class="block mb-1 font-medium text-gray-700">No Revisi</label>
@@ -78,74 +79,20 @@
 
                 </div>
 
-
-
-
-
-                <!-- Purchase Order Items -->
+                <!-- Purchase Order Items Component -->
                 <div>
                     <label class="block mb-1 font-medium text-gray-700">Items</label>
-                    <table class="min-w-full divide-y divide-gray-200 text-sm mb-4">
-                        <thead class="bg-gray-100 text-gray-600 uppercase tracking-wider">
-                            <tr>
-                                <th class="px-6 py-3 text-left">Nama Barang</th>
-                                <th class="px-6 py-3 text-left">Kuantitas</th>
-                                <th class="px-6 py-3 text-left">Harga Per Unit</th>
-                                <th class="px-6 py-3 text-left">Mata Uang</th>
-                                <th class="px-6 py-3 text-left">VAT</th>
-                                <th class="px-6 py-3 text-left">Batas Diterima</th>
-                                <th class="px-6 py-3 text-left">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($purchaseOrder->items as $item)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item->item->namaMaterial ?? '-' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" name="items[{{ $loop->index }}][kuantitas]"
-                                            value="{{ old('items.' . $loop->index . '.kuantitas', $item->kuantitas) }}"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" step="0.01"
-                                            name="items[{{ $loop->index }}][hargaPerUnit]"
-                                            value="{{ old('items.' . $loop->index . '.hargaPerUnit', $item->hargaPerUnit) }}"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="text" name="items[{{ $loop->index }}][mataUang]"
-                                            value="{{ old('items.' . $loop->index . '.mataUang', $item->mataUang) }}"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" name="items[{{ $loop->index }}][vat]"
-                                            value="{{ old('items.' . $loop->index . '.vat', $item->vat) }}"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="date" name="items[{{ $loop->index }}][batasDiterima]"
-                                            value="{{ old('items.' . $loop->index . '.batasDiterima', $item->batasDiterima) }}"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="number" step="0.01" name="items[{{ $loop->index }}][total]"
-                                            value="{{ old('items.' . $loop->index . '.total', $item->total) }}"
-                                            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                        <input type="hidden" name="items[{{ $loop->index }}][id]"
-                                            value="{{ $item->idPurchaseOrderItem }}" />
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    @include('components.purchase-order-items', [
+                        'initialItems' => $purchaseOrder->items->toArray(),
+                        'initialVendorId' => $purchaseOrder->vendorId,
+                        'vendors' => $vendors->toArray(),
+                        'materials' => $materials->toArray(),
+                    ])
                 </div>
-
-
 
                 <!-- Submit -->
                 <div>
-                    <button type="submit"
-                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
                         Simpan Perubahan
                     </button>
                 </div>
@@ -155,4 +102,15 @@
             </form>
         </div>
     </div>
+
+    <script>
+        window.initialItems = @json($purchaseOrder->items->toArray());
+        window.initialVendorId = @json($purchaseOrder->vendorId);
+        window.vendors = @json($vendors->toArray());
+        window.materials = @json($materials->toArray());
+    </script>
+
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    @vite('resources/js/app.js')
 @endsection
