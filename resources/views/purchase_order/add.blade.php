@@ -92,11 +92,18 @@
                 @include('components.rfq-form')
 
                 <!-- Submit -->
-                <div>
-                    <button type="submit" class="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-900 transition">
-                        Buat Purchase Order
-                    </button>
-                </div>
+                <!-- Submit dan Kembali -->
+<div class="flex justify-end gap-4 pt-4">
+    <a href="javascript:void(0);" onclick="window.history.back()" 
+       class="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 shadow">
+        ← Kembali
+    </a>
+    
+    <button type="submit" class="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-900 transition">
+        Buat Purchase Order
+    </button>
+</div>
+
             </form>
         </div>
     </div>

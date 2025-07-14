@@ -116,13 +116,18 @@
                     </div>
                 </div>
 
-                <!-- Submit -->
-                <div class="pt-4">
+                <div class="pt-4 flex justify-end gap-4">
+                    <a href="{{ route('vendor.index') }}"
+                       class="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 shadow">
+                        ← Kembali
+                    </a>
+                
                     <button type="submit"
                         class="bg-black text-white px-6 py-2 rounded-md font-semibold hover:bg-gray-900 transition">
                         Update Vendor
                     </button>
                 </div>
+                
             </form>
         </div>
     </div>

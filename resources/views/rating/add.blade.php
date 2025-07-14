@@ -22,9 +22,17 @@
             <label class="block mb-1 font-medium text-gray-700">Kuantitas</label>
             <input type="text" class="w-full border border-gray-300 rounded px-4 py-2" placeholder="Sesuai/Tidak Sesuai">
         </div>
-        <div>
-            <button type="submit" class="bg-black text-white px-6 py-2 rounded hover:bg-gray-900">Simpan</button>
+        <div class="flex justify-end gap-4 pt-2">
+            <a href="javascript:void(0);" onclick="window.history.back()" 
+               class="px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 shadow">
+                ← Kembali
+            </a>
+        
+            <button type="submit" class="bg-black text-white px-6 py-2 rounded hover:bg-gray-900">
+                Simpan
+            </button>
         </div>
+        
     </form>
 </div>
 @endsection

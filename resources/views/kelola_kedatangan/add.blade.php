@@ -51,27 +51,67 @@
                 </div>
             </div>
 
-            <div>
-                <label class="block font-semibold text-gray-700 mb-2">Nama Barang</label>
-                <div id="items_container"
-                    class="border border-gray-300 rounded px-4 py-3 bg-gray-50 max-h-56 overflow-y-auto">
-                    <p class="text-gray-500">Pilih perusahaan terlebih dahulu untuk memuat barang.</p>
+            <div class="bg-white rounded-lg shadow p-6 mt-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Items</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto text-sm border border-gray-200 shadow-sm rounded-lg overflow-hidden">
+
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700">
+                                <th class="border px-4 py-2">Nama Barang</th>
+                                <th class="border px-4 py-2">Jumlah Diterima</th>
+                                <th class="border px-4 py-2">Qty Diterima</th>
+                                <th class="border px-4 py-2">Qty Sesuai</th>
+                            </tr>
+                        </thead>
+                        <tbody id="items_table_body">
+                            <tr>
+                                <td class="px-4 py-2 border-b border-gray-100">Pipa Galvanis 2 Inch</td>
+                                <td class="px-4 py-2 border-b border-gray-100">
+                                    <input type="number" name="jumlah_diterima[]" value="20" class="w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-1 focus:ring-blue-500" min="0" required>
+                                </td>
+                                <td class="px-4 py-2 border-b border-gray-100">
+                                    <input type="number" name="qty_diterima[]" value="20" class="w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-1 focus:ring-blue-500" min="0" required>
+                                </td>
+                                <td class="px-4 py-2 border-b border-gray-100">
+                                    <input type="number" name="qty_sesuai[]" value="18" class="w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-1 focus:ring-blue-500" min="0" required>
+                                </td>
+                            </tr>
+                            
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 border-b border-gray-100">Pipa Galvanis 2 Inch</td>
+                                <td class="px-4 py-2 border-b border-gray-100">
+                                    <input type="number" name="jumlah_diterima[]" value="20" class="w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-1 focus:ring-blue-500" min="0" required>
+                                </td>
+                                <td class="px-4 py-2 border-b border-gray-100">
+                                    <input type="number" name="qty_diterima[]" value="20" class="w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-1 focus:ring-blue-500" min="0" required>
+                                </td>
+                                <td class="px-4 py-2 border-b border-gray-100">
+                                    <input type="number" name="qty_sesuai[]" value="18" class="w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-1 focus:ring-blue-500" min="0" required>
+                                </td>
+                            </tr>
+                            
+                        </tbody>
+                        
+                    </table>
                 </div>
             </div>
+            
+            
 
-            <div>
-                <label class="block font-semibold text-gray-700 mb-2">Jumlah Diterima</label>
-                <div id="quantities_container" class="space-y-4">
-                    <!-- Quantity inputs will be inserted here -->
-                </div>
-            </div>
-
-            <div class="flex justify-end">
+            <div class="flex justify-end gap-4">
+                <a href="{{ route('goods-receipts.index') }}"
+                   class="inline-flex items-center px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 shadow">
+                    ← Kembali
+                </a>
+            
                 <button type="submit"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow">
                     Simpan
                 </button>
             </div>
+            
         </form>
     </div>
 

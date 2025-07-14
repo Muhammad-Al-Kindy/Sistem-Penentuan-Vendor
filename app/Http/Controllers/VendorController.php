@@ -146,4 +146,20 @@ class VendorController extends Controller
             return redirect()->route('vendor.index')->with('error', 'Gagal menghapus vendor.');
         }
     }
+
+    public function reports()
+{
+    return view('vendor.reports'); // resources/views/vendor/reports.blade.php
+}
+
+public function purchaseOrder()
+{
+    return view('vendor.purchase_order');
+}
+
+public function riwayatEvaluasi()
+{
+    return view('vendor.riwayat_evaluasi');
+}
+
 }

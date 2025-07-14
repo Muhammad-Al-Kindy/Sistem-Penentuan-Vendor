@@ -15,6 +15,10 @@
         window.materials = @json($materials ?? []);
         console.log('window.materials:', window.materials);
     </script>
+    <!-- Remix Icon CDN -->
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
 </head>
 
 <body class="bg-gray-100">

@@ -99,3 +99,22 @@ Route::get('/rating/edit', function () {
 Route::get('/dashboard', function () {
     return view('dashboard.index');
 })->name('dashboard.index');
+
+
+
+Route::middleware(['auth', 'vendor'])->prefix('vendor')->group(function () {
+    Route::get('/reports', [VendorController::class, 'reports'])->name('vendor.reports');
+    Route::get('/purchase-order', [VendorController::class, 'purchaseOrder'])->name('vendor.purchase_order');
+    Route::get('/riwayat-evaluasi', [VendorController::class, 'riwayatEvaluasi'])->name('vendor.riwayat_evaluasi');
+});
+
+
+Route::get('/vendor/reports', [VendorController::class, 'reports'])->name('vendor.reports');
+
+Route::get('/vendor/chat/{reportId}', function ($reportId) {
+    return view('vendor.chat', compact('reportId'));
+})->name('vendor.chat');
+
+Route::get('/vendor/purchase-order', function () {
+    return view('vendor.purchase_order');
+})->name('vendor.purchase_order');
