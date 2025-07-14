@@ -52,6 +52,17 @@ class PurchaseOrderController extends Controller
         return view('purchase_order.add', compact('vendors', 'materials', 'materialVendorPrices', 'rfqs', 'purchaseOrders', 'purchaseOrderItems'));
     }
 
+    public function getItems($purchaseOrderId)
+    {
+        try {
+            $items = \App\Models\PurchaseOrderItem::where('purchaseOrderId', $purchaseOrderId)->with('item')->get();
+            return response()->json($items);
+        } catch (\Exception $e) {
+            Log::error('Error fetching purchase order items: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch items'], 500);
+        }
+    }
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([

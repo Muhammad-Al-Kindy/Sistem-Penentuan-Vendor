@@ -30,6 +30,11 @@ class PurchaseOrderItem extends Model
         return $this->belongsTo(Material::class, 'materialId', 'idMaterial');
     }
 
+    public function material()
+    {
+        return $this->item();
+    }
+
     public function vendorPrice()
     {
         return $this->belongsTo(MaterialVendorPrice::class);

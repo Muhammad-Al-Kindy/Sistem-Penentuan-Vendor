@@ -18,11 +18,11 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria.index');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/subkriteria', [SubKriteriaController::class, 'index'])->name('subkriteria.index');
     Route::get('/subkriteria/create/{kriteriaId}', [SubKriteriaController::class, 'create'])->name('subkriteria.create');
     Route::get('/subkriteria/edit/{id}', [SubKriteriaController::class, 'edit'])->name('subkriteria.edit');
@@ -30,7 +30,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/subkriteria/submit', [SubKriteriaController::class, 'store'])->name('subkriteria.submit');
     Route::delete('/subkriteria/delete/{id}', [SubKriteriaController::class, 'destroy'])->name('subkriteria.destroy');
 });
-Route::middleware(['web', 'auth'])->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/vendor', [VendorController::class, 'index'])->name('vendor.index');
     Route::get('/vendor/create', [VendorController::class, 'create'])->name('vendor.create');
     Route::post('/vendor/submit', [VendorController::class, 'store'])->name('vendor.submit');
@@ -39,11 +39,8 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::delete('/vendor/{id}', [VendorController::class, 'destroy'])->name('vendor.destroy');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('goods-receipts', GoodsReceiptsController::class);
-});
-
-Route::middleware(['auth'])->group(function () {
     Route::get('/purchase-order', [PurchaseOrderController::class, 'index'])->name('purchase.index');
     Route::get('/purchase-order/create', [PurchaseOrderController::class, 'create'])->name('purchase.create');
     Route::post('/purchase-order/submit', [PurchaseOrderController::class, 'store'])->name('purchase.submit');
@@ -61,36 +58,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/materials-by-vendor', [MaterialController::class, 'getByVendor'])->name('materials.by.vendor');
 });
 
+Route::middleware(['auth', 'admin'])->group(function () {
+
+    Route::get('/kelola-kedatangan', [GoodsReceiptsController::class, 'kelolaKedatanganIndex'])->name('kedatangan.index');
+
+    Route::delete('/kelola-kedatangan/{id}', [GoodsReceiptsController::class, 'destroy'])->name('kedatangan.destroy');
+
+    Route::get('/kelola-kedatangan/tambah', [GoodsReceiptsController::class, 'kelolaKedatanganAdd'])->name('kedatangan.add');
+    Route::get('/purchase-orders/{purchaseOrderId}/items', [PurchaseOrderController::class, 'getItems'])->name('purchase-orders.items');
+
+    Route::get('/kelola-kedatangan/edit/{id}', [GoodsReceiptsController::class, 'kelolaKedatanganEdit'])->name('kedatangan.edit');
+    Route::put('/kelola-kedatangan/update/{id}', [GoodsReceiptsController::class, 'kelolaKedatanganUpdate'])->name('kedatangan.update');
+});
+
 Route::get('/smart-form', [SmartController::class, 'form'])->name('smart.form');
 Route::post('/smart-process', [SmartController::class, 'process'])->name('smart.process');
-
-
-// Route::get('/purchase-order', function () {
-//     return view('purchase_order.index');
-// })->name('purchase_order.index');
-
-// Route::get('/purchase-order/add', function () {
-//     return view('purchase_order.add');
-// })->name('purchase_order.add');
-
-
-// Route::get('/purchase-order/edit', function () {
-//     return view('purchase_order.edit');
-// })->name('purchase_order.edit');
-
-
-
-Route::get('/kelola-kedatangan', function () {
-    return view('kelola_kedatangan.index');
-})->name('kedatangan.index');
-
-Route::get('/kelola-kedatangan/tambah', function () {
-    return view('kelola_kedatangan.add');
-})->name('kedatangan.add');
-
-Route::get('/kelola-kedatangan/edit', function () {
-    return view('kelola_kedatangan.edit');
-})->name('kedatangan.edit');
 
 Route::get('/rekomendasi', function () {
     return view('rekomendasi.index');

@@ -18,7 +18,7 @@ class GoodsReceiptsItems extends Model
 
     public function goodsReceipt()
     {
-        return $this->belongsTo(GoodsReceipts::class);
+        return $this->belongsTo(GoodsReceipts::class, 'goodsReceiptId', 'idGoodsReceipt');
     }
 
     public function items()

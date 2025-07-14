@@ -13,7 +13,8 @@ class Vendor extends Model
 
     protected $primaryKey = 'idVendor';
 
-    protected $fillable = ['namaVendor', 'alamatVendor', 'NPWP', 'jenisPerusahaan', 'SPPKP', 'nomorIndukPerusahaan'];
+    protected $fillable = ['namaVendor', 'alamatVendor', 'NPWP', 'jenisPerusahaan', 'SPPKP', 'nomorIndukPerusahaan', 'user_id'];
+
 
     public function getRouteKeyName()
     {
@@ -29,5 +30,10 @@ class Vendor extends Model
     public function evaluations()
     {
         return $this->hasMany(VendorEvaluaations::class, 'vendorId', 'idVendor');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'idUser');
     }
 }

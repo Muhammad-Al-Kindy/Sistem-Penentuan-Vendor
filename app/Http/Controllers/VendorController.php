@@ -29,7 +29,17 @@ class VendorController extends Controller
 
     public function store(Request $request)
     {
+        // Create new user with role vendor and default password
+        $user = \App\Models\User::create([
+            'name' => $request->input('namaVendor'),
+            'email' => $request->input('email'),
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'role' => 'vendor',
+        ]);
+
+        // Create vendor linked to user
         $vendorData = $request->only(['namaVendor', 'alamatVendor', 'NPWP', 'jenisPerusahaan', 'SPPKP', 'nomorIndukPerusahaan']);
+        $vendorData['user_id'] = $user->idUser;
         $vendor = Vendor::create($vendorData);
         Log::info("Added new vendor: ", $vendor->toArray());
 
@@ -66,7 +76,16 @@ class VendorController extends Controller
 
     public function update(Request $request, Vendor $vendor)
     {
+        // Update vendor info
         $vendor->update($request->only(['namaVendor', 'alamatVendor', 'NPWP', 'jenisPerusahaan', 'SPPKP', 'nomorIndukPerusahaan']));
+
+        // Update linked user name
+        if ($vendor->user) {
+            $vendor->user->update([
+                'name' => $request->input('namaVendor'),
+                'email' => $request->input('email'), // optionally update email if provided
+            ]);
+        }
 
         $contactData = $request->only(['contactPerson', 'telepon', 'fax', 'email', 'jabatan']);
         $contact = $vendor->contacts()->first();
@@ -108,6 +127,11 @@ class VendorController extends Controller
             // Delete related contacts and evaluations first to avoid foreign key constraint errors
             $vendor->contacts()->delete();
             $vendor->evaluations()->delete();
+
+            // Delete linked user account
+            if ($vendor->user) {
+                $vendor->user->delete();
+            }
 
             $vendor->delete();
             if (request()->ajax()) {

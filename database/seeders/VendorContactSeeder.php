@@ -13,30 +13,18 @@ class VendorContactSeeder extends Seeder
      */
     public function run(): void
     {
-        $vendor1 = Vendor::where('namaVendor', 'Vendor A')->first();
-        $vendor2 = Vendor::where('namaVendor', 'Vendor B')->first();
+        $vendors = Vendor::all();
 
         $contacts = [];
 
-        if ($vendor1) {
+        foreach ($vendors as $vendor) {
             $contacts[] = [
-                'vendorId' => $vendor1->idVendor,
-                'contactPerson' => 'John Doe',
+                'vendorId' => $vendor->idVendor,
+                'contactPerson' => 'Contact Person for ' . ($vendor->user->name ?? 'Unknown Vendor'),
                 'telepon' => '08123456789',
                 'fax' => '021123456',
-                'email' => 'john.doe@example.com',
+                'email' => 'contact+' . $vendor->idVendor . '@example.com',
                 'jabatan' => 'Manager',
-            ];
-        }
-
-        if ($vendor2) {
-            $contacts[] = [
-                'vendorId' => $vendor2->idVendor,
-                'contactPerson' => 'Jane Smith',
-                'telepon' => '08987654321',
-                'fax' => '021654321',
-                'email' => 'jane.smith@example.com',
-                'jabatan' => null,
             ];
         }
 

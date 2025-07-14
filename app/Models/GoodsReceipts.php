@@ -11,7 +11,7 @@ class GoodsReceipts extends Model
 
     protected $primaryKey = 'idGoodsReceipt';
 
-    protected $fillable = ['no_dokumen', 'tanggal_dok', 'tanggal_terima', 'purchaseOrderId', 'no_surat_jalan', 'proyek', 'halaman'];
+    protected $fillable = ['no_dokumen', 'tanggal_dok', 'tanggal_terima', 'purchaseOrderId', 'vendor_id', 'no_surat_jalan', 'proyek', 'halaman'];
 
 
     public $timestamps = true;
@@ -22,8 +22,13 @@ class GoodsReceipts extends Model
         return $this->belongsTo(PurchaseOrder::class);
     }
 
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vendor_id', 'idVendor');
+    }
+
     public function items()
     {
-        return $this->hasMany(GoodsReceiptsItems::class);
+        return $this->hasMany(GoodsReceiptsItems::class, 'goodsReceiptId', 'idGoodsReceipt');
     }
 }
