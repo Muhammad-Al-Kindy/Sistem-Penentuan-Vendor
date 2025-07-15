@@ -10,21 +10,19 @@
         <a href="{{ route('kriteria.index') }}"
             class="block py-2 px-4 rounded hover:bg-blue-300 {{ request()->routeIs('kriteria.*') || request()->routeIs('subkriteria.*') ? 'bg-blue-300' : '' }}">Kriteria</a>
         <a href="{{ route('vendor.index') }}"
-            class="block py-2 px-4 rounded hover:bg-blue-300 {{ request()->routeIs('vendor.*') ? 'bg-blue-300' : '' }}">List
-            Vendor</a>
+            class="block py-2 px-4 rounded hover:bg-blue-300 {{ request()->routeIs('vendor.*') ? 'bg-blue-300' : '' }}">List Vendor</a>
         <a href="{{ route('purchase.index') }}"
-            class="block py-2 px-4 rounded hover:bg-blue-300 {{ request()->routeIs('purchase.*') ? 'bg-blue-300' : '' }}">List
-            Purchase
-            Order</a>
+            class="block py-2 px-4 rounded hover:bg-blue-300 {{ request()->routeIs('purchase.*') ? 'bg-blue-300' : '' }}">List Purchase Order</a>
         <a href="{{ route('kedatangan.index') }}"
-            class="block py-2 px-4 rounded hover:bg-blue-300 {{ request()->routeIs('kedatangan.*') ? 'bg-blue-300' : '' }}">Kelola
-            Kedatangan</a>
+            class="block py-2 px-4 rounded hover:bg-blue-300 {{ request()->routeIs('kedatangan.*') ? 'bg-blue-300' : '' }}">Kelola Kedatangan</a>
         <a href="{{ route('rating.index') }}"
             class="block py-2 px-4 rounded hover:bg-blue-300 {{ request()->routeIs('rating.*') ? 'bg-blue-300' : '' }}">Rating</a>
         <a href="{{ route('rekomendasi.index') }}"
             class="block py-2 px-4 rounded hover:bg-blue-300 {{ request()->routeIs('rekomendasi.*') ? 'bg-blue-300' : '' }}">Rekomendasi</a>
-
+        <a href="{{ route('chat.index') }}"
+            class="block py-2 px-4 rounded hover:bg-blue-300 {{ request()->routeIs('chat.*') ? 'bg-blue-300' : '' }}">Chat</a>
     </nav>
+
     <nav class="p-4 space-y-2">
         <h2 class="text-xl font-semibold mb-2">Support</h2>
         <a href="#" class="block py-2 px-4 rounded hover:bg-blue-300">Setting</a>

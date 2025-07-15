@@ -118,3 +118,9 @@ Route::get('/vendor/chat/{reportId}', function ($reportId) {
 Route::get('/vendor/purchase-order', function () {
     return view('vendor.purchase_order');
 })->name('vendor.purchase_order');
+
+
+
+Route::get('/chat', function () {
+    return view('chat');
+})->name('chat.index');
