@@ -124,3 +124,6 @@ Route::get('/vendor/purchase-order', function () {
 Route::get('/chat', function () {
     return view('chat');
 })->name('chat.index');
+
+
+Route::view('/users', 'users.index')->name('users.index');
