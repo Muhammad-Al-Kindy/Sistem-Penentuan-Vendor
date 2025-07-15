@@ -77,6 +77,10 @@ class LoginController extends Controller
                     'user' => $user,
                 ]);
             }
+            // Redirect based on role
+            if ($user->isVendor()) {
+                return redirect()->route('vendor.reports')->with('login_success', true);
+            }
             return redirect()->route('kriteria.index')->with('login_success', true);
         }
 
@@ -92,6 +96,10 @@ class LoginController extends Controller
                     'message' => 'Authenticated',
                     'user' => $user,
                 ]);
+            }
+            // Redirect based on role
+            if ($user->isVendor()) {
+                return redirect()->route('vendor.reports')->with('login_success', true);
             }
             return redirect()->route('kriteria.index')->with('login_success', true);
         }

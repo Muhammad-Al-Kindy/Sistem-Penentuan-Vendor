@@ -15,6 +15,6 @@ class KriteriaController extends Controller
             $query->where('namaKriteria', 'like', "%{$search}%");
         })->paginate(10); // Show 10 per page
 
-        return view('kriteria.index', compact('kriterias'));
+        return view('admin.kriteria.index', compact('kriterias'));
     }
 }

@@ -21,12 +21,12 @@ class SubKriteriaController extends Controller
             $query->where('kriteriaId', $kriteriaId);
         })->paginate(10);
 
-        return view('sub_kriteria.index', compact('subkriterias'));
+        return view('admin.sub_kriteria.index', compact('subkriterias'));
     }
     public function create($kriteriaId)
     {
         $kriteria = Kriteria::findOrFail($kriteriaId);
-        return view('sub_kriteria.add', compact('kriteria'));
+        return view('admin.sub_kriteria.add', compact('kriteria'));
     }
     public function store(Request $request)
     {
@@ -50,9 +50,10 @@ class SubKriteriaController extends Controller
         return redirect()->route('subkriteria.index', ['kriteriaId' => $validated['kriteriaId']])->with('status', 'stored');
     }
 
-    public function edit($id){
+    public function edit($id)
+    {
         $subkriteria = SubKriteria::findOrFail($id);
-        return view('sub_kriteria.edit', compact('subkriteria'));
+        return view('admin.sub_kriteria.edit', compact('subkriteria'));
     }
 
     public function update(Request $request, $id)
@@ -87,5 +88,4 @@ class SubKriteriaController extends Controller
 
         return redirect()->route('subkriteria.index')->with('status', 'deleted');
     }
-
 }

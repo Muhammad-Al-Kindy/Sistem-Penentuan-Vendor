@@ -9,6 +9,7 @@ use App\Http\Controllers\SubKriteriaController;
 use App\Http\Controllers\SmartController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\ChatController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.post');
@@ -40,35 +41,31 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::resource('goods-receipts', GoodsReceiptsController::class);
     Route::get('/purchase-order', [PurchaseOrderController::class, 'index'])->name('purchase.index');
     Route::get('/purchase-order/create', [PurchaseOrderController::class, 'create'])->name('purchase.create');
     Route::post('/purchase-order/submit', [PurchaseOrderController::class, 'store'])->name('purchase.submit');
     Route::get('/purchase-order/edit/{purchaseOrder}', [PurchaseOrderController::class, 'edit'])->name('purchase.edit');
     Route::put('/purchase-order/update/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->name('purchase.update');
     Route::delete('/purchase-order/delete/{id}', [PurchaseOrderController::class, 'destroy'])->name('purchase.destroy');
-
-    // Add route for material vendor prices API
     Route::get('/material-vendor-prices', [PurchaseOrderController::class, 'getMaterialVendorPrices'])->name('material.vendor.prices');
-
-    // Add route for creating new material
     Route::post('/materials', [MaterialController::class, 'store'])->name('materials.store');
-
-    // Add route for getting materials filtered by vendor
     Route::get('/materials-by-vendor', [MaterialController::class, 'getByVendor'])->name('materials.by.vendor');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
-
+    Route::resource('goods-receipts', GoodsReceiptsController::class);
     Route::get('/kelola-kedatangan', [GoodsReceiptsController::class, 'kelolaKedatanganIndex'])->name('kedatangan.index');
-
     Route::delete('/kelola-kedatangan/{id}', [GoodsReceiptsController::class, 'destroy'])->name('kedatangan.destroy');
-
     Route::get('/kelola-kedatangan/tambah', [GoodsReceiptsController::class, 'kelolaKedatanganAdd'])->name('kedatangan.add');
     Route::get('/purchase-orders/{purchaseOrderId}/items', [PurchaseOrderController::class, 'getItems'])->name('purchase-orders.items');
-
     Route::get('/kelola-kedatangan/edit/{id}', [GoodsReceiptsController::class, 'kelolaKedatanganEdit'])->name('kedatangan.edit');
     Route::put('/kelola-kedatangan/update/{id}', [GoodsReceiptsController::class, 'kelolaKedatanganUpdate'])->name('kedatangan.update');
+});
+
+Route::middleware(['auth', 'vendor'])->prefix('vendor')->group(function () {
+    Route::get('/reports', [VendorController::class, 'reports'])->name('vendor.reports');
+    Route::get('/purchase-order', [VendorController::class, 'purchaseOrder'])->name('vendor.purchase_order');
+    Route::get('/riwayat-evaluasi', [VendorController::class, 'riwayatEvaluasi'])->name('vendor.riwayat_evaluasi');
 });
 
 Route::get('/smart-form', [SmartController::class, 'form'])->name('smart.form');
@@ -102,28 +99,28 @@ Route::get('/dashboard', function () {
 
 
 
-Route::middleware(['auth', 'vendor'])->prefix('vendor')->group(function () {
-    Route::get('/reports', [VendorController::class, 'reports'])->name('vendor.reports');
-    Route::get('/purchase-order', [VendorController::class, 'purchaseOrder'])->name('vendor.purchase_order');
-    Route::get('/riwayat-evaluasi', [VendorController::class, 'riwayatEvaluasi'])->name('vendor.riwayat_evaluasi');
-});
 
 
 Route::get('/vendor/reports', [VendorController::class, 'reports'])->name('vendor.reports');
 
-Route::get('/vendor/chat/{reportId}', function ($reportId) {
-    return view('vendor.chat', compact('reportId'));
-})->name('vendor.chat');
+
+Route::get('/vendor/chat/{reportId}', [ChatController::class, 'vendorChat'])->name('vendor.chat');
 
 Route::get('/vendor/purchase-order', function () {
     return view('vendor.purchase_order');
 })->name('vendor.purchase_order');
 
+Route::middleware(['auth', 'admin'])->group(function () {
+});
+Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+Route::post('/chat/message', [ChatController::class, 'store'])->name('chat.message.store');
+Route::post('/chat/messages', [ChatController::class, 'fetchMessages'])->name('chat.messages.fetch');
 
-
-Route::get('/chat', function () {
-    return view('chat');
-})->name('chat.index');
+Route::middleware(['auth', 'vendor'])->group(function () {
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index.vendor');
+    Route::post('/chat/message', [ChatController::class, 'store'])->name('chat.message.store.vendor');
+    Route::post('/chat/messages', [ChatController::class, 'fetchMessages'])->name('chat.messages.fetch.vendor');
+});
 
 
 Route::view('/users', 'users.index')->name('users.index');

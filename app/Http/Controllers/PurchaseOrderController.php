@@ -22,7 +22,7 @@ class PurchaseOrderController extends Controller
             });
         })->paginate(10);
 
-        return view('purchase_order.index', compact('order'));
+        return view('admin.purchase_order.index', compact('order'));
     }
 
     public function getMaterialVendorPrices(Request $request)
@@ -49,7 +49,7 @@ class PurchaseOrderController extends Controller
         $rfqs = \App\Models\Rfqs::all();
         $purchaseOrders = PurchaseOrder::all();
         $purchaseOrderItems = \App\Models\PurchaseOrderItem::all();
-        return view('purchase_order.add', compact('vendors', 'materials', 'materialVendorPrices', 'rfqs', 'purchaseOrders', 'purchaseOrderItems'));
+        return view('admin.purchase_order.add', compact('vendors', 'materials', 'materialVendorPrices', 'rfqs', 'purchaseOrders', 'purchaseOrderItems'));
     }
 
     public function getItems($purchaseOrderId)
@@ -144,7 +144,7 @@ class PurchaseOrderController extends Controller
         });
         $initialVendorId = $purchaseOrder->vendor->idVendor ?? null;
 
-        return view('purchase_order.edit', compact('purchaseOrder', 'vendors', 'materials', 'materialVendorPrices', 'initialItems', 'initialVendorId'));
+        return view('admin.purchase_order.edit', compact('purchaseOrder', 'vendors', 'materials', 'materialVendorPrices', 'initialItems', 'initialVendorId'));
     }
 
     public function update(Request $request, $id)

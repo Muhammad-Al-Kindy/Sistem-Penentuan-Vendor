@@ -12,25 +12,19 @@ class GoodsReceiptsController extends Controller
     public function index()
     {
         $receipts = GoodsReceipts::with(['purchaseOrder.vendor', 'items'])->paginate(10);
-        return view('kelola_kedatangan.index', compact('receipts'));
+        return view('admin.kelola_kedatangan.index', compact('receipts'));
     }
 
     public function kelolaKedatanganIndex()
     {
         $receipts = GoodsReceipts::with(['purchaseOrder.vendor', 'items'])->paginate(10);
-        return view('kelola_kedatangan.index', compact('receipts'));
-    }
-
-    public function create()
-    {
-        $orders = PurchaseOrder::all();
-        return view('goods_receipts.create', compact('orders'));
+        return view('admin.kelola_kedatangan.index', compact('receipts'));
     }
 
     public function kelolaKedatanganAdd()
     {
         $orders = PurchaseOrder::all();
-        return view('kelola_kedatangan.add', compact('orders'));
+        return view('admin.kelola_kedatangan.add', compact('orders'));
     }
 
     public function store(Request $request)
@@ -47,8 +41,10 @@ class GoodsReceiptsController extends Controller
             'halaman' => 'nullable|string',
             'item_ids' => 'required|array',
             'item_qty_diterima' => 'required|array',
+            'qty_sesuai' => 'required|array',
             'item_ids.*' => 'required|integer|exists:purchase_order_items,idPurchaseOrderItem',
             'item_qty_diterima.*' => 'required|integer|min:1',
+            'qty_sesuai.*' => 'required|integer|min:0',
         ]);
 
         $receipt = new GoodsReceipts();
@@ -74,6 +70,7 @@ class GoodsReceiptsController extends Controller
 
         foreach ($request->item_ids as $index => $itemId) {
             $qty = $request->item_qty_diterima[$index] ?? 0;
+            $qtySesuai = $request->qty_sesuai ? ($request->qty_sesuai[$index] ?? 0) : 0;
             if ($qty > 0) {
                 $purchaseOrderItem = \App\Models\PurchaseOrderItem::find($itemId);
                 if (!$purchaseOrderItem) {
@@ -84,12 +81,13 @@ class GoodsReceiptsController extends Controller
                 $item->goodsReceiptId = $receipt->idGoodsReceipt;
                 $item->materialId = $purchaseOrderItem->materialId;
                 $item->qty_diterima = $qty;
+                $item->qty_sesuai = $qtySesuai;
 
                 // Fetch material details for deskripsi and satuan
                 $material = \App\Models\Material::find($purchaseOrderItem->materialId);
                 $item->deskripsi = $material->namaMaterial ?? '';
                 $item->satuan = $material->satuanMaterial ?? '';
-                $item->qty_po = 0; // Add default qty_po to avoid DB error
+                $item->qty_po = $purchaseOrderItem->kuantitas ?? 0; // Set qty_po from purchase order item kuantitas
                 $item->save();
 
                 // Log after save to ensure ID is available
@@ -102,17 +100,6 @@ class GoodsReceiptsController extends Controller
         }
 
         return redirect()->route('kedatangan.index')->with('success', 'Goods receipt created.');
-    }
-
-    public function show(GoodsReceipts $goods_receipt)
-    {
-        return view('goods_receipts.show', compact('goods_receipt'));
-    }
-
-    public function edit(GoodsReceipts $goods_receipt)
-    {
-        $orders = PurchaseOrder::all();
-        return view('goods_receipts.edit', compact('goods_receipt', 'orders'));
     }
 
     public function update(Request $request, GoodsReceipts $goods_receipt)
@@ -154,7 +141,7 @@ class GoodsReceiptsController extends Controller
             return $item;
         });
 
-        return view('kelola_kedatangan.edit', [
+        return view('admin.kelola_kedatangan.edit', [
             'goods_receipt' => $receipt,
             'orders' => $orders,
             'itemsWithPOItemId' => $itemsWithPOItemId,
@@ -173,8 +160,10 @@ class GoodsReceiptsController extends Controller
             'halaman' => 'nullable|string',
             'item_ids' => 'required|array',
             'item_qty_diterima' => 'required|array',
+            'qty_sesuai' => 'required|array',
             'item_ids.*' => 'required|integer|exists:purchase_order_items,idPurchaseOrderItem',
             'item_qty_diterima.*' => 'required|integer|min:1',
+            'qty_sesuai.*' => 'required|integer|min:0',
         ]);
 
         $receipt = GoodsReceipts::findOrFail($id);
@@ -207,9 +196,12 @@ class GoodsReceiptsController extends Controller
         // Add updated items
         foreach ($request->item_ids as $index => $itemId) {
             $qty = $request->item_qty_diterima[$index] ?? 0;
+            $qtySesuai = $request->qty_sesuai ? ($request->qty_sesuai[$index] ?? 0) : 0;
             if ($qty > 0) {
+                Log::info('Processing purchaseOrderItemId:', ['itemId' => $itemId]);
                 $purchaseOrderItem = \App\Models\PurchaseOrderItem::find($itemId);
                 if (!$purchaseOrderItem) {
+                    Log::error('PurchaseOrderItem not found:', ['itemId' => $itemId]);
                     if ($request->ajax() || $request->wantsJson()) {
                         return response()->json(['error' => 'Invalid purchase order item selected.'], 422);
                     }
@@ -220,9 +212,11 @@ class GoodsReceiptsController extends Controller
                 $item->goodsReceiptId = $receipt->idGoodsReceipt;
                 $item->materialId = $purchaseOrderItem->materialId;
                 $item->qty_diterima = $qty;
+                $item->qty_sesuai = $qtySesuai;
 
                 $material = \App\Models\Material::find($purchaseOrderItem->materialId);
                 if (!$material) {
+                    Log::error('Material not found for purchase order item:', ['materialId' => $purchaseOrderItem->materialId]);
                     if ($request->ajax() || $request->wantsJson()) {
                         return response()->json(['error' => 'Material not found for purchase order item.'], 422);
                     }
@@ -231,8 +225,11 @@ class GoodsReceiptsController extends Controller
                 $item->deskripsi = $material->namaMaterial;
                 $item->satuan = $material->satuanMaterial;
 
-                // Set qty_po from purchase order item qty_po if available, else 0
-                $item->qty_po = $purchaseOrderItem->qty_po ?? 0;
+                // Set qty_po from purchase order item kuantitas if available, else 0
+                Log::info('Saving GoodsReceiptsItem qty_po:', ['purchaseOrderItemId' => $itemId, 'kuantitas' => $purchaseOrderItem->kuantitas]);
+                $item->qty_po = $purchaseOrderItem->kuantitas ?? 0;
+
+                Log::info('Saving GoodsReceiptsItem data:', $item->toArray());
 
                 $item->save();
 

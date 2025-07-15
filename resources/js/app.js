@@ -8,3 +8,8 @@ import "./updateKedatangan.js";
 import "./updateSubKriteria.js";
 import "./debug_invalid_requests.js";
 import "../css/app.css";
+import "../js/chat.js";
+
+Echo.channel("chat-channel").listen(".chat-event", (e) => {
+    console.log("Pesan masuk:", e.message);
+});

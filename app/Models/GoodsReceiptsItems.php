@@ -11,7 +11,7 @@ class GoodsReceiptsItems extends Model
 
     protected $primaryKey = 'idGoodReceiptsItem';
 
-    protected $fillable = ['goodsReceiptId', 'materialId', 'deskripsi', 'satuan', 'qty_po', 'qty_diterima', 'ncr', 'lokasi_gudang'];
+    protected $fillable = ['goodsReceiptId', 'materialId', 'deskripsi', 'satuan', 'qty_po', 'qty_diterima', 'qty_sesuai', 'ncr', 'lokasi_gudang'];
 
 
     public $timestamps = true;

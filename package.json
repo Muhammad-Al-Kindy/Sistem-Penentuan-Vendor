@@ -16,6 +16,8 @@
     },
     "dependencies": {
         "@tailwindcss/vite": "^4.1.7",
+        "laravel-echo": "^2.1.6",
+        "pusher-js": "^8.4.0",
         "remixicon": "^4.6.0",
         "sweetalert2": "^11.21.0",
         "tailwindcss": "^4.1.7"
