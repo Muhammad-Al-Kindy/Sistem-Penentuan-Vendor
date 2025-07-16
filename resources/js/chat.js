@@ -1,140 +1,151 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const messageInput = document.querySelector(
-        'input[placeholder="Tulis pesan..."]'
-    );
-    const sendButton = document.querySelector("#send-button");
-    const chatContainer = document.querySelector("#chat-container");
-    const vendorList = document.querySelector("#vendor-list");
-    const chatHeaderName = document.querySelector(
-        "h3.text-lg.font-bold.text-gray-800"
-    );
-    const chatHeaderSub = document.querySelector("p.text-sm.text-gray-500");
+    console.log("Chat.js loaded");
+
+    const vendorList = document.querySelectorAll(".vendor-item");
+    const chatWithName = document.getElementById("chat-with-name");
+    const chatContainer = document.getElementById("chat-container");
+    const chatInput = document.getElementById("chat-input");
+    const chatSendButton = document.getElementById("chat-send");
     const loadingMessage = document.getElementById("loading-message");
+    const reportContainer = document.getElementById("report-container");
+    const reportDropdown = document.getElementById("report-dropdown");
+    document.getElementById("chat-form").style.display = "block";
 
     let selectedVendorId = null;
     let selectedVendorName = null;
+    let selectedReportId = null;
+    let allReports = [];
 
-    // Initialize selectedVendorId from localStorage or window.selectedVendorId
-    const storedVendorId = localStorage.getItem("selectedVendorId");
-    if (storedVendorId) {
-        selectedVendorId = storedVendorId;
-    } else if (window.selectedVendorId) {
-        selectedVendorId = window.selectedVendorId;
-        localStorage.setItem("selectedVendorId", selectedVendorId);
+    // 1. Handle pilih vendor
+    vendorList.forEach((item) => {
+        item.addEventListener("click", () => {
+            selectedVendorId = item.dataset.userId;
+            selectedVendorName = item.dataset.vendorName;
+            selectedReportId = null;
+            chatWithName.innerText = `Vendor ${selectedVendorName}`;
+            loadingMessage.innerText = "Silakan pilih laporan...";
+            chatContainer.innerHTML = "";
+            reportDropdown.innerHTML = `<option value="">-- Pilih Laporan --</option>`;
+            fetchReports(selectedVendorId);
+        });
+    });
+
+    // 2. Ambil semua report dari Laravel (dikirim via blade)
+    allReports = window.nonConformanceReports || [];
+
+    function fetchReports(vendorUserId) {
+        console.log("fetchReports dijalankan untuk vendor", vendorUserId);
+
+        const filtered = allReports.filter((r) => {
+            return (
+                r.goods_receipt_item &&
+                r.goods_receipt_item.goods_receipt &&
+                r.goods_receipt_item.goods_receipt.vendor &&
+                r.goods_receipt_item.goods_receipt.vendor.user &&
+                r.goods_receipt_item.goods_receipt.vendor.user.idUser ==
+                    vendorUserId
+            );
+        });
+
+        reportDropdown.innerHTML = `<option value="">-- Pilih Laporan --</option>`;
+        filtered.forEach((r) => {
+            const id = r.idNonConformance;
+
+            const descRaw = r.keterangan || "Tidak ada deskripsi";
+            const descCleaned = descRaw
+                .replace(/Dipesan:.*Sesua[i|u]:.*$/, "")
+                .trim();
+            const desc = descCleaned.replace(/\.*$/, ""); // hilangkan titik di akhir
+
+            const qty_dipesan = r.goods_receipt_item?.qty_po || "-";
+            const qty_sesuai = r.goods_receipt_item?.qty_sesuai || "-";
+            const option = document.createElement("option");
+            option.value = id;
+            option.textContent = `Laporan #${id} - ${desc}. Dipesan: ${qty_dipesan}, Sesuai: ${qty_sesuai}`;
+            console.log("Menambahkan option:", option.textContent);
+            reportDropdown.appendChild(option);
+        });
+
+        reportContainer.classList.remove("hidden");
     }
 
-    // Fungsi untuk menambahkan pesan ke tampilan chat
-    function appendMessage(message, isSender) {
-        const messageDiv = document.createElement("div");
-        messageDiv.classList.add(
-            "px-3",
-            "py-2",
-            "rounded",
-            "text-sm",
-            "max-w-[75%]",
-            "whitespace-pre-wrap"
-        );
-        messageDiv.textContent = message;
-
-        if (isSender) {
-            messageDiv.classList.add("bg-blue-100", "text-right", "ml-auto");
-        } else {
-            messageDiv.classList.add("bg-gray-200", "text-left");
+    // 3. Handle pilih laporan
+    reportDropdown.addEventListener("change", () => {
+        selectedReportId = reportDropdown.value;
+        if (selectedReportId) {
+            fetchMessages();
         }
+    });
 
-        chatContainer.appendChild(messageDiv);
+    // 4. Ambil pesan dari backend
+    function fetchMessages() {
+        if (!selectedVendorId || !selectedReportId) return;
+
+        loadingMessage.innerText = "Memuat pesan...";
+        chatContainer.innerHTML = "";
+
+        const payload = {
+            from_id: window.authUserId,
+            to_id: selectedVendorId,
+            non_conformance_id: selectedReportId,
+        };
+
+        fetch("/chat/messages", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+            },
+            body: JSON.stringify(payload),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.status === "success") {
+                    renderMessages(data.messages);
+                    loadingMessage.innerText = "";
+                } else {
+                    chatContainer.innerHTML =
+                        '<div class="text-red-600">Gagal memuat pesan.</div>';
+                }
+            })
+            .catch((err) => {
+                console.error("fetchMessages error:", err);
+                chatContainer.innerHTML =
+                    '<div class="text-red-600">Gagal memuat pesan.</div>';
+            });
+    }
+
+    // 5. Render pesan ke tampilan
+    function renderMessages(messages) {
+        chatContainer.innerHTML = "";
+        messages.forEach((msg) => {
+            const isAdmin = msg.from_id == window.authUserId;
+            const msgDiv = document.createElement("div");
+            msgDiv.className = `p-2 rounded-lg max-w-xs ${
+                isAdmin
+                    ? "bg-blue-100 text-right ml-auto"
+                    : "bg-gray-200 text-left"
+            }`;
+            msgDiv.textContent = msg.message;
+
+            chatContainer.appendChild(msgDiv);
+        });
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // Handle saat user memilih vendor
-    if (vendorList) {
-        vendorList.addEventListener("click", function (e) {
-            const vendorItem = e.target.closest(".vendor-item");
-            if (!vendorItem) return;
+    // 6. Kirim pesan
+    chatSendButton.addEventListener("click", () => {
+        const message = chatInput.value.trim();
+        if (!message || !selectedVendorId || !selectedReportId) return;
 
-            console.log("Vendor selected:", vendorItem);
-
-            // Remove active class from all vendor items
-            document.querySelectorAll(".vendor-item").forEach((el) => {
-                el.classList.remove("bg-blue-50");
-            });
-
-            // Add active class to selected vendor item
-            vendorItem.classList.add("bg-blue-50");
-
-            selectedVendorId = vendorItem.getAttribute("data-user-id");
-            selectedVendorName = vendorItem.getAttribute("data-vendor-name");
-
-            // Store selected vendor id in localStorage to persist selection
-            localStorage.setItem("selectedVendorId", selectedVendorId);
-
-            console.log("Selected Vendor ID:", selectedVendorId);
-            console.log("Selected Vendor Name:", selectedVendorName);
-
-            chatHeaderName.textContent = "Chat dengan " + selectedVendorName;
-            chatHeaderSub.textContent = "Silakan kirim pesan untuk vendor";
-
-            chatContainer.innerHTML = "";
-            loadingMessage.textContent = "Memuat pesan...";
-
-            fetch("/chat/messages", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute("content"),
-                },
-                body: JSON.stringify({
-                    user_id: selectedVendorId,
-                }),
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    console.log("Fetch messages response data:", data);
-                    if (data.status === "success") {
-                        chatContainer.innerHTML = "";
-                        data.messages.forEach((msg) => {
-                            // Fix logic: message is sender if from_id equals authenticated user id
-                            // But invert the isSender to fix the color bug (blue for me, gray for vendor)
-                            const isSender = msg.from_id !== window.authUserId;
-                            appendMessage(msg.message, isSender);
-                        });
-                        loadingMessage.textContent = "";
-                    } else {
-                        alert("Gagal memuat pesan.");
-                        loadingMessage.textContent = "";
-                    }
-                })
-                .catch(() => {
-                    alert("Gagal memuat pesan.");
-                    loadingMessage.textContent = "";
-                });
-        });
-    }
-
-    // Tombol kirim
-    sendButton.addEventListener("click", function () {
-        const message = messageInput.value.trim();
-
-        // Retrieve selectedVendorId from localStorage in case it was lost
-        const storedVendorId = localStorage.getItem("selectedVendorId");
-        if (storedVendorId) {
-            selectedVendorId = storedVendorId;
-        }
-
-        // Use window.chatPartnerId if defined (vendor chat), else selectedVendorId
-        const toId = window.chatPartnerId
-            ? window.chatPartnerId
-            : selectedVendorId;
-
-        if (!message || !toId) {
-            alert("Tulis pesan dan pilih vendor terlebih dahulu.");
-            return;
-        }
-
-        // Disable send button to prevent multiple sends
-        sendButton.disabled = true;
+        const payload = {
+            from_id: window.authUserId,
+            to_id: selectedVendorId,
+            non_conformance_id: selectedReportId,
+            message: message,
+        };
 
         fetch("/chat/message", {
             method: "POST",
@@ -144,50 +155,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     .querySelector('meta[name="csrf-token"]')
                     .getAttribute("content"),
             },
-            body: JSON.stringify({
-                to_id: toId.trim(),
-                message: message,
-            }),
+            body: JSON.stringify(payload),
         })
-            .then((response) => response.json())
+            .then((res) => res.json())
             .then((data) => {
                 if (data.status === "success") {
-                    appendMessage(message, true);
-                    messageInput.value = "";
+                    chatInput.value = "";
+                    fetchMessages();
                 } else {
-                    console.error("Send message error response:", data);
-                    alert("Pesan gagal dikirim.");
+                    alert("Gagal mengirim pesan.");
                 }
-                // Re-enable send button after response
-                sendButton.disabled = false;
             })
-            .catch((error) => {
-                console.error("Send message fetch error:", error);
+            .catch((err) => {
+                console.error("send message error:", err);
                 alert("Gagal mengirim pesan.");
-                // Re-enable send button on error
-                sendButton.disabled = false;
             });
     });
-
-    // Menerima pesan dari Pusher
-    if (window.Echo) {
-        window.Echo.channel("chat-channel").listen(".chat-event", (e) => {
-            const fromId = e.message.from_id;
-            const toId = e.message.to_id;
-            const messageText = e.message.message;
-
-            const chatPartnerId = window.chatPartnerId
-                ? window.chatPartnerId
-                : selectedVendorId;
-
-            // Show message only if it involves the chat partner and authenticated user
-            if (fromId === window.authUserId && toId == chatPartnerId) {
-                // Message sent by authenticated user
-                appendMessage(messageText, true);
-            } else if (toId === window.authUserId && fromId == chatPartnerId) {
-                // Message received from chat partner
-                appendMessage(messageText, false);
-            }
-        });
-    }
 });

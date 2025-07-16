@@ -59,7 +59,7 @@
                         <thead>
                             <tr class="bg-gray-100 text-gray-700">
                                 <th class="border px-4 py-2">Nama Barang</th>
-                                <th class="border px-4 py-2">Jumlah Diterima</th>
+                                {{-- <th class="border px-4 py-2">Jumlah Diterima</th> --}}
                                 <th class="border px-4 py-2">Qty Diterima</th>
                                 <th class="border px-4 py-2">Qty Sesuai</th>
                             </tr>
@@ -143,17 +143,18 @@
                         row.appendChild(hiddenItemIdInput);
 
                         // Jumlah Diterima input
-                        const jumlahDiterimaCell = document.createElement('td');
-                        jumlahDiterimaCell.className = 'border px-4 py-2';
-                        const jumlahInput = document.createElement('input');
-                        jumlahInput.type = 'number';
-                        jumlahInput.name = 'item_qty_diterima[]';
-                        jumlahInput.min = 0;
-                        jumlahInput.required = true;
-                        jumlahInput.className =
-                            'w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-1 focus:ring-blue-500';
-                        jumlahDiterimaCell.appendChild(jumlahInput);
-                        row.appendChild(jumlahDiterimaCell);
+                        // Remove this block to remove the "Jumlah Diterima" column
+                        // const jumlahDiterimaCell = document.createElement('td');
+                        // jumlahDiterimaCell.className = 'border px-4 py-2';
+                        // const jumlahInput = document.createElement('input');
+                        // jumlahInput.type = 'number';
+                        // jumlahInput.name = 'item_qty_diterima[]';
+                        // jumlahInput.min = 0;
+                        // jumlahInput.required = true;
+                        // jumlahInput.className =
+                        //     'w-full border border-gray-300 rounded-md px-2 py-1 focus:ring-1 focus:ring-blue-500';
+                        // jumlahDiterimaCell.appendChild(jumlahInput);
+                        // row.appendChild(jumlahDiterimaCell);
 
                         // Qty Diterima input
                         const qtyDiterimaCell = document.createElement('td');

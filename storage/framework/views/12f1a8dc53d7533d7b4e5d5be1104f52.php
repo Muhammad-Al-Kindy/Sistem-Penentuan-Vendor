@@ -1,28 +1,26 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Halaman Chat'); ?>
 
-@section('title', 'Halaman Chat')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="flex max-w-7xl mx-auto px-4 py-8 gap-6">
         <!-- Sidebar Vendor List -->
         <div class="w-1/4 border-r border-gray-200/60 pr-4">
             <h2 class="text-lg font-semibold text-blue-700 mb-4">Daftar Penerima</h2>
 
             <ul class="space-y-2" id="vendor-list">
-                @foreach ($vendors as $vendor)
+                <?php $__currentLoopData = $vendors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <li>
                         <a href="#"
                             class="vendor-item flex justify-between items-center p-3 rounded-md border border-gray-300/50 hover:bg-blue-50 transition bg-white cursor-pointer"
-                            data-user-id="{{ $vendor->user ? $vendor->user->idUser : '' }}"
-                            data-vendor-id="{{ $vendor->idVendor }}" data-vendor-name="{{ $vendor->namaVendor }}">
+                            data-user-id="<?php echo e($vendor->user ? $vendor->user->idUser : ''); ?>"
+                            data-vendor-id="<?php echo e($vendor->idVendor); ?>" data-vendor-name="<?php echo e($vendor->namaVendor); ?>">
                             <div class="flex items-center space-x-2">
                                 <i class="fas fa-user-circle text-gray-500"></i>
-                                <span>{{ $vendor->namaVendor }}</span>
+                                <span><?php echo e($vendor->namaVendor); ?></span>
                             </div>
                             <span class="text-xs px-2 py-1 rounded-full bg-gray-300 text-gray-700">Belum</span>
                         </a>
                     </li>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </ul>
         </div>
 
@@ -46,28 +44,29 @@
                 <select id="report-dropdown" class="w-full border rounded p-2">
                     <option value="">-- Pilih --</option>
 
-                    @foreach ($nonConformanceReports as $report)
-                        @php
+                    <?php $__currentLoopData = $nonConformanceReports; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $report): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                             $item = $report->goodsReceiptItem;
-                        @endphp
+                        ?>
 
-                        @if ($item && $item->goodsReceipt && $item->goodsReceipt->vendor && $item->goodsReceipt->vendor->user)
-                            @php
+                        <?php if($item && $item->goodsReceipt && $item->goodsReceipt->vendor && $item->goodsReceipt->vendor->user): ?>
+                            <?php
                                 $vendor = $item->goodsReceipt->vendor;
                                 $qtyPo = $item->qty_po ?? '-';
                                 $qtySesuai = $item->qty_sesuai ?? '-';
                                 $vendorName = $vendor->namaVendor ?? 'Tidak Diketahui';
                                 $vendorUserId = $vendor->user->idUser ?? null;
-                            @endphp
+                            ?>
 
-                            <option value="{{ $report->idNonConformance }}" data-vendor-id="{{ $vendorUserId }}">
-                                Laporan #{{ $report->idNonConformance }} -
-                                {{ $report->keterangan && trim($report->keterangan) !== '' ? $report->keterangan : 'Tidak ada deskripsi' }}.
-                                Dipesan: {{ $qtyPo }},
-                                Sesuai: {{ $qtySesuai }}
+                            <option value="<?php echo e($report->idNonConformance); ?>" data-vendor-id="<?php echo e($vendorUserId); ?>">
+                                Laporan #<?php echo e($report->idNonConformance); ?> -
+                                <?php echo e($report->keterangan && trim($report->keterangan) !== '' ? $report->keterangan : 'Tidak ada deskripsi'); ?>.
+                                Dipesan: <?php echo e($qtyPo); ?>,
+                                Sesuai: <?php echo e($qtySesuai); ?>
+
                             </option>
-                        @endif
-                    @endforeach
+                        <?php endif; ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
 
 
@@ -102,10 +101,12 @@
     </div>
 
     <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
 
     <script>
-        window.authUserId = {{ auth()->user()->idUser }};
-        window.nonConformanceReports = @json($nonConformanceReports);
+        window.authUserId = <?php echo e(auth()->user()->idUser); ?>;
+        window.nonConformanceReports = <?php echo json_encode($nonConformanceReports, 15, 512) ?>;
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Aplikasi\Laragon\laragon\www\skripsi_kindyv2\Sistem_Pemilihan_Vendor\resources\views/admin/chat/chat.blade.php ENDPATH**/ ?>

@@ -1,15 +1,23 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const authUserId = window.authUserId ?? null;
+
     const messageInput = document.querySelector("#chat-input");
     const sendButton = document.querySelector("#chat-send");
     const chatContainer = document.querySelector("#chat-container");
     const vendorList = document.querySelector("#vendor-list");
     const chatWithName = document.querySelector("#chat-with-name");
-    const loadingMessage = document.querySelector("#loading-message");
+    const loadingMessage = document.getElementById("loading-message");
 
     let selectedVendorId = null;
     let selectedVendorName = null;
 
-    // Append message to chat container
+    if (!messageInput || !sendButton || !vendorList || !chatContainer) {
+        console.warn(
+            "❌ Elemen chat admin tidak lengkap. Keluar dari chatAdminOnly.js"
+        );
+        return;
+    }
+
     function appendMessage(message, isSender) {
         const messageDiv = document.createElement("div");
         messageDiv.classList.add(
@@ -32,13 +40,13 @@ document.addEventListener("DOMContentLoaded", function () {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // Load messages for selected vendor
     function loadMessages() {
         if (!selectedVendorId) {
             chatContainer.innerHTML = "";
             loadingMessage.textContent = "Pilih vendor untuk mulai chat.";
             return;
         }
+
         loadingMessage.textContent = "Memuat pesan...";
         chatContainer.innerHTML = "";
 
@@ -50,51 +58,41 @@ document.addEventListener("DOMContentLoaded", function () {
                     .querySelector('meta[name="csrf-token"]')
                     .getAttribute("content"),
             },
-            body: JSON.stringify({
-                user_id: selectedVendorId,
-            }),
+            body: JSON.stringify({ user_id: selectedVendorId }),
         })
-            .then((response) => response.json())
+            .then((res) => res.json())
             .then((data) => {
                 if (data.status === "success") {
                     data.messages.forEach((msg) => {
-                        const isSender = msg.from_id === window.authUserId;
+                        const isSender = msg.from_id === authUserId;
                         appendMessage(msg.message, isSender);
                     });
-                    loadingMessage.textContent = "";
                 } else {
-                    loadingMessage.textContent = "";
                     alert("Gagal memuat pesan.");
                 }
             })
-            .catch(() => {
+            .catch(() => alert("Terjadi kesalahan saat memuat pesan."))
+            .finally(() => {
                 loadingMessage.textContent = "";
-                alert("Gagal memuat pesan.");
             });
     }
 
-    // Handle vendor selection
     vendorList.addEventListener("click", function (e) {
         const vendorItem = e.target.closest(".vendor-item");
         if (!vendorItem) return;
 
-        // Remove active class from all vendor items
         document
             .querySelectorAll(".vendor-item")
             .forEach((el) => el.classList.remove("bg-blue-50"));
-
-        // Add active class to selected vendor item
         vendorItem.classList.add("bg-blue-50");
 
         selectedVendorId = vendorItem.getAttribute("data-user-id");
         selectedVendorName = vendorItem.getAttribute("data-vendor-name");
 
         chatWithName.textContent = selectedVendorName;
-
         loadMessages();
     });
 
-    // Send message handler
     sendButton.addEventListener("click", function () {
         const message = messageInput.value.trim();
         if (!message || !selectedVendorId) {
@@ -117,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 message: message,
             }),
         })
-            .then((response) => response.json())
+            .then((res) => res.json())
             .then((data) => {
                 if (data.status === "success") {
                     appendMessage(message, true);
@@ -125,15 +123,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     alert("Pesan gagal dikirim.");
                 }
-                sendButton.disabled = false;
             })
-            .catch(() => {
-                alert("Gagal mengirim pesan.");
+            .catch(() => alert("Gagal mengirim pesan."))
+            .finally(() => {
                 sendButton.disabled = false;
             });
     });
 
-    // Listen for incoming messages via Echo/Pusher
     if (window.Echo) {
         window.Echo.channel("chat-channel").listen(".chat-event", (e) => {
             const fromId = e.message.from_id;
@@ -141,14 +137,14 @@ document.addEventListener("DOMContentLoaded", function () {
             const messageText = e.message.message;
 
             if (
-                (toId === window.authUserId && fromId === selectedVendorId) ||
-                (fromId === window.authUserId && toId === selectedVendorId)
+                selectedVendorId &&
+                ((toId === authUserId && fromId === selectedVendorId) ||
+                    (fromId === authUserId && toId === selectedVendorId))
             ) {
-                appendMessage(messageText, fromId === window.authUserId);
+                appendMessage(messageText, fromId === authUserId);
             }
         });
     }
 
-    // Initialize
     loadingMessage.textContent = "Pilih vendor untuk mulai chat.";
 });

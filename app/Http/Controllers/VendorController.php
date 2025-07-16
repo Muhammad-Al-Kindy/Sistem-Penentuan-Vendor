@@ -147,19 +147,31 @@ class VendorController extends Controller
         }
     }
 
+    public function purchaseOrder()
+    {
+        return view('vendor.purchase_order');
+    }
+
+    public function riwayatEvaluasi()
+    {
+        return view('vendor.riwayat_evaluasi');
+    }
+
     public function reports()
-{
-    return view('vendor.reports'); // resources/views/vendor/reports.blade.php
-}
+    {
+        $user = auth()->user();
 
-public function purchaseOrder()
-{
-    return view('vendor.purchase_order');
-}
+        // Assuming vendor is related to user via user_id
+        $vendor = $user->vendor;
 
-public function riwayatEvaluasi()
-{
-    return view('vendor.riwayat_evaluasi');
-}
+        if (!$vendor) {
+            abort(403, 'Unauthorized: No vendor associated with user.');
+        }
 
+        $nonConformances = \App\Models\NonConformance::whereHas('goodsReceiptItem.goodsReceipt', function ($query) use ($vendor) {
+            $query->where('vendor_id', $vendor->idVendor);
+        })->orderBy('tanggal_ditemukan', 'desc')->paginate(10);
+
+        return view('vendor.reports', compact('nonConformances'));
+    }
 }

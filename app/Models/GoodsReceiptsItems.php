@@ -25,4 +25,9 @@ class GoodsReceiptsItems extends Model
     {
         return $this->belongsTo(Material::class);
     }
+
+    public function nonConformances()
+    {
+        return $this->hasMany(NonConformance::class, 'goods_receipt_item_id', 'idGoodReceiptsItem');
+    }
 }

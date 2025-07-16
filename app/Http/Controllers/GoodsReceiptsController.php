@@ -40,10 +40,10 @@ class GoodsReceiptsController extends Controller
             'proyek' => 'nullable|string',
             'halaman' => 'nullable|string',
             'item_ids' => 'required|array',
-            'item_qty_diterima' => 'required|array',
+            'qty_diterima' => 'required|array',
             'qty_sesuai' => 'required|array',
             'item_ids.*' => 'required|integer|exists:purchase_order_items,idPurchaseOrderItem',
-            'item_qty_diterima.*' => 'required|integer|min:1',
+            'qty_diterima.*' => 'required|integer|min:1',
             'qty_sesuai.*' => 'required|integer|min:0',
         ]);
 
@@ -69,7 +69,7 @@ class GoodsReceiptsController extends Controller
         }
 
         foreach ($request->item_ids as $index => $itemId) {
-            $qty = $request->item_qty_diterima[$index] ?? 0;
+            $qty = $request->qty_diterima[$index] ?? 0;
             $qtySesuai = $request->qty_sesuai ? ($request->qty_sesuai[$index] ?? 0) : 0;
             if ($qty > 0) {
                 $purchaseOrderItem = \App\Models\PurchaseOrderItem::find($itemId);
@@ -95,6 +95,20 @@ class GoodsReceiptsController extends Controller
 
                 if (!$item->exists) {
                     return redirect()->back()->withErrors('Failed to save goods receipt item.');
+                }
+
+                // Check if qty_po > qty_sesuai to create non_conformance record
+                if (($item->qty_po ?? 0) > ($item->qty_sesuai ?? 0)) {
+                    $existingNonConformance = \App\Models\NonConformance::where('goods_receipt_item_id', $item->idGoodReceiptsItem)->first();
+
+                    if (!$existingNonConformance) {
+                        \App\Models\NonConformance::create([
+                            'goods_receipt_item_id' => $item->idGoodReceiptsItem,
+                            'tanggal_ditemukan' => now(),
+                            'status' => 'open',
+                            'keterangan' => 'Barang tidak sesuai. Dipesan: ' . ($item->qty_po ?? 0) . ', Sesuai: ' . ($item->qty_sesuai ?? 0),
+                        ]);
+                    }
                 }
             }
         }
@@ -159,10 +173,10 @@ class GoodsReceiptsController extends Controller
             'proyek' => 'nullable|string',
             'halaman' => 'nullable|string',
             'item_ids' => 'required|array',
-            'item_qty_diterima' => 'required|array',
+            'qty_diterima' => 'required|array',
             'qty_sesuai' => 'required|array',
             'item_ids.*' => 'required|integer|exists:purchase_order_items,idPurchaseOrderItem',
-            'item_qty_diterima.*' => 'required|integer|min:1',
+            'qty_diterima.*' => 'required|integer|min:1',
             'qty_sesuai.*' => 'required|integer|min:0',
         ]);
 
@@ -195,7 +209,7 @@ class GoodsReceiptsController extends Controller
 
         // Add updated items
         foreach ($request->item_ids as $index => $itemId) {
-            $qty = $request->item_qty_diterima[$index] ?? 0;
+            $qty = $request->qty_diterima[$index] ?? 0;
             $qtySesuai = $request->qty_sesuai ? ($request->qty_sesuai[$index] ?? 0) : 0;
             if ($qty > 0) {
                 Log::info('Processing purchaseOrderItemId:', ['itemId' => $itemId]);
@@ -238,6 +252,20 @@ class GoodsReceiptsController extends Controller
                         return response()->json(['error' => 'Failed to save goods receipt item.'], 422);
                     }
                     return redirect()->back()->withErrors('Failed to save goods receipt item.');
+                }
+
+                // Check if qty_po > qty_sesuai to create non_conformance record
+                if (($item->qty_po ?? 0) > ($item->qty_sesuai ?? 0)) {
+                    $existingNonConformance = \App\Models\NonConformance::where('goods_receipt_item_id', $item->idGoodReceiptsItem)->first();
+
+                    if (!$existingNonConformance) {
+                        \App\Models\NonConformance::create([
+                            'goods_receipt_item_id' => $item->idGoodReceiptsItem,
+                            'tanggal_ditemukan' => now(),
+                            'status' => 'open',
+                            'keterangan' => 'Barang tidak sesuai. Dipesan: ' . ($item->qty_po ?? 0) . ', Sesuai: ' . ($item->qty_sesuai ?? 0),
+                        ]);
+                    }
                 }
             }
         }
