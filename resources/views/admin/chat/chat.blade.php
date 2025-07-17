@@ -44,7 +44,7 @@
             <div id="report-container" class="mb-4 hidden">
                 <label for="report-dropdown" class="text-sm font-medium text-gray-700 mb-1">Pilih Laporan:</label>
                 <select id="report-dropdown" class="w-full border rounded p-2">
-                    <option value="">-- Pilih --</option>
+                    <option value="">-- Pilih Laporan --</option>
 
                     @foreach ($nonConformanceReports as $report)
                         @php
@@ -62,7 +62,7 @@
 
                             <option value="{{ $report->idNonConformance }}" data-vendor-id="{{ $vendorUserId }}">
                                 Laporan #{{ $report->idNonConformance }} -
-                                {{ $report->keterangan && trim($report->keterangan) !== '' ? $report->keterangan : 'Tidak ada deskripsi' }}.
+{{ $report->keterangan && trim($report->keterangan) !== '' ? $report->keterangan : 'Tidak ada deskripsi' }}.
                                 Dipesan: {{ $qtyPo }},
                                 Sesuai: {{ $qtySesuai }}
                             </option>
@@ -108,4 +108,7 @@
         window.authUserId = {{ auth()->user()->idUser }};
         window.nonConformanceReports = @json($nonConformanceReports);
     </script>
+
+    <!-- Load chat.js -->
+    <script type="module" src="{{ Vite::asset('resources/js/chat.js') }}"></script>
 @endsection

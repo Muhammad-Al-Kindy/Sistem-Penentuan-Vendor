@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\GoodsReceiptsController;
 use App\Http\Controllers\KriteriaController;
@@ -11,6 +12,8 @@ use App\Http\Controllers\VendorController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\NonConformanceController;
+use App\Http\Controllers\VendorUpdateController;
+use App\Models\VendorUpdate;
 
 // --- Login ---
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -63,8 +66,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 // --- Vendor Only ---
 Route::middleware(['auth', 'vendor'])->prefix('vendor')->group(function () {
-    Route::get('/reports', [VendorController::class, 'reports'])->name('vendor.reports');
-    Route::get('/purchase-order', [VendorController::class, 'purchaseOrder'])->name('vendor.purchase_order');
+    Route::get('/reports', [VendorUpdateController::class, 'reports'])->name('vendor.reports');
+    Route::get('/purchase-order', [VendorUpdateController::class, 'purchaseOrder'])->name('vendor.purchase_order');
+    Route::get('/purchase-order/edit/{purchaseOrder}', [VendorUpdateController::class, 'edit'])->name('vendor.purchase_order.edit');
+    Route::put('/purchase-order/update/{id}', [VendorUpdateController::class, 'store'])->name('vendor.purchase_order.store');
     Route::get('/riwayat-evaluasi', [VendorController::class, 'riwayatEvaluasi'])->name('vendor.riwayat_evaluasi');
 
     // Chat vendor

@@ -40,4 +40,9 @@ class PurchaseOrder extends Model
     {
         return $this->belongsTo(Vendor::class, 'vendorId', 'idVendor');
     }
+
+    public function vendorUpdates()
+    {
+        return $this->hasMany(VendorUpdate::class, 'purchase_order_id', 'idPurchaseOrder');
+    }
 }

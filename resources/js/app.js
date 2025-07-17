@@ -4,7 +4,6 @@ import "./delete.js";
 import "./navbar.js";
 import "./update.js";
 import "./updateVendor.js";
-import "./updateKedatangan.js";
 import "./updateSubKriteria.js";
 import "./debug_invalid_requests.js";
 import "../css/app.css";

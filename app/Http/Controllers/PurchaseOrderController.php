@@ -115,6 +115,15 @@ class PurchaseOrderController extends Controller
                 ]);
             }
 
+            // Create vendor update record
+            \App\Models\VendorUpdate::create([
+                'purchase_order_id' => $purchaseOrder->idPurchaseOrder,
+                'vendor_id' => $purchaseOrder->vendorId,
+                'tanggal_update' => now(),
+                'jenis_update' => 'Created',
+                'dokumen' => null,
+            ]);
+
             DB::commit();
 
             return response()->json(['success' => true, 'message' => 'Purchase order berhasil ditambahkan.', 'purchaseOrder' => $purchaseOrder]);

@@ -42,7 +42,7 @@
             <div id="report-container" class="mb-4 hidden">
                 <label for="report-dropdown" class="text-sm font-medium text-gray-700 mb-1">Pilih Laporan:</label>
                 <select id="report-dropdown" class="w-full border rounded p-2">
-                    <option value="">-- Pilih --</option>
+                    <option value="">-- Pilih Laporan --</option>
 
                     <?php $__currentLoopData = $nonConformanceReports; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $report): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <?php
@@ -60,7 +60,7 @@
 
                             <option value="<?php echo e($report->idNonConformance); ?>" data-vendor-id="<?php echo e($vendorUserId); ?>">
                                 Laporan #<?php echo e($report->idNonConformance); ?> -
-                                <?php echo e($report->keterangan && trim($report->keterangan) !== '' ? $report->keterangan : 'Tidak ada deskripsi'); ?>.
+<?php echo e($report->keterangan && trim($report->keterangan) !== '' ? $report->keterangan : 'Tidak ada deskripsi'); ?>.
                                 Dipesan: <?php echo e($qtyPo); ?>,
                                 Sesuai: <?php echo e($qtySesuai); ?>
 
@@ -107,6 +107,9 @@
         window.authUserId = <?php echo e(auth()->user()->idUser); ?>;
         window.nonConformanceReports = <?php echo json_encode($nonConformanceReports, 15, 512) ?>;
     </script>
+
+    <!-- Load chat.js -->
+    <script type="module" src="<?php echo e(Vite::asset('resources/js/chat.js')); ?>"></script>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Aplikasi\Laragon\laragon\www\skripsi_kindyv2\Sistem_Pemilihan_Vendor\resources\views/admin/chat/chat.blade.php ENDPATH**/ ?>

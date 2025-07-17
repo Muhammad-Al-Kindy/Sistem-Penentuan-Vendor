@@ -36,4 +36,9 @@ class Vendor extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'idUser');
     }
+
+    public function vendorUpdates()
+    {
+        return $this->hasMany(VendorUpdate::class, 'vendor_id', 'idVendor');
+    }
 }

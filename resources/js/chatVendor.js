@@ -95,9 +95,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Use GET with query parameters instead of POST
             const url = new URL(fetchMessagesUrl, window.location.origin);
-            url.searchParams.append("from_id", authUserId);
-            url.searchParams.append("to_id", chatPartnerId);
-            url.searchParams.append("non_conformance_id", nonConformanceId);
+            url.searchParams.append('from_id', authUserId);
+            url.searchParams.append('to_id', chatPartnerId);
+            url.searchParams.append('non_conformance_id', nonConformanceId);
 
             fetch(url.toString(), {
                 method: "GET",
