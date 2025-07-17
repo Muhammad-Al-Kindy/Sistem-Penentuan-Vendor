@@ -39,8 +39,11 @@
                             </td>
                             <td class="px-6 py-4">
                                 <?php if($order->vendorUpdates->isNotEmpty()): ?>
+                                    <?php
+                                        $latestUpdate = $order->vendorUpdates->sortByDesc('tanggal_update')->first();
+                                    ?>
                                     <span class="text-green-600 font-semibold">
-                                        <?php echo e($order->vendorUpdates->pluck('jenis_update')->join(', ')); ?>
+                                        <?php echo e($latestUpdate->jenis_update); ?>
 
                                     </span>
                                 <?php else: ?>

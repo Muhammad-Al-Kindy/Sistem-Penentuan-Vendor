@@ -40,8 +40,11 @@
                             </td>
                             <td class="px-6 py-4">
                                 @if ($order->vendorUpdates->isNotEmpty())
+                                    @php
+                                        $latestUpdate = $order->vendorUpdates->sortByDesc('tanggal_update')->first();
+                                    @endphp
                                     <span class="text-green-600 font-semibold">
-                                        {{ $order->vendorUpdates->pluck('jenis_update')->join(', ') }}
+                                        {{ $latestUpdate->jenis_update }}
                                     </span>
                                 @else
                                     <span class="text-gray-400">No updates</span>

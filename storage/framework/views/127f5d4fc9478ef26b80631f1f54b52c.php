@@ -7,13 +7,13 @@
         <h2 class="text-base font-semibold text-gray-500 px-2 mb-2">Menu Vendor</h2>
 
         <a href="<?php echo e(route('vendor.reports')); ?>"
-            class="flex items-center px-4 py-2 rounded-lg transition hover:bg-blue-100 <?php echo e(request()->routeIs('vendor.reports') ? 'bg-blue-100 text-blue-700 font-semibold' : ''); ?>">
+            class="flex items-center px-4 py-2 rounded-lg transition hover:bg-blue-100 <?php echo e(request()->routeIs('vendor.reports*') || request()->routeIs('chat.index.vendor*') || request()->routeIs('chat.message*') ? 'bg-blue-100 text-blue-700 font-semibold' : ''); ?>">
             <i class="fas fa-chart-line w-5 mr-3 text-gray-500"></i>
             Reports
         </a>
 
         <a href="<?php echo e(route('vendor.purchase_order')); ?>"
-            class="flex items-center px-4 py-2 rounded-lg transition hover:bg-blue-100 <?php echo e(request()->routeIs('vendor.purchase_order') ? 'bg-blue-100 text-blue-700 font-semibold' : ''); ?>">
+            class="flex items-center px-4 py-2 rounded-lg transition hover:bg-blue-100 <?php echo e(request()->routeIs('vendor.purchase_order*') ? 'bg-blue-100 text-blue-700 font-semibold' : ''); ?>">
             <i class="fas fa-file-alt w-5 mr-3 text-gray-500"></i>
             Purchase Order
         </a>
