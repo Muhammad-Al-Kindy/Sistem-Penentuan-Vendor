@@ -1,5 +1,5 @@
 <aside id="sidebar"
-    class="fixed top-0 left-0 z-40 w-64 bg-white h-full shadow-lg border-r border-gray-200 flex flex-col justify-between">
+    class="fixed top-0 left-0 z-40 w-64 bg-white h-full shadow-lg border-r border-gray-200 flex flex-col justify-between translate-x-0 transition-transform duration-300">
 
     <!-- Logo -->
     <div class="p-6">
@@ -13,13 +13,13 @@
             <br>
 
             <!-- Dashboard -->
-            <li>
+            {{-- <li>
                 <a href="{{ route('dashboard.index') }}"
                     class="flex items-center px-4 py-2 rounded-lg transition hover:bg-indigo-100 {{ request()->routeIs('dashboard.index') ? 'bg-indigo-100 text-indigo-700 font-semibold' : 'text-gray-700' }}">
                     <i class="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
                     Dashboard
                 </a>
-            </li>
+            </li> --}}
 
             <!-- Kriteria -->
             <li>
@@ -54,15 +54,6 @@
                     class="flex items-center px-4 py-2 rounded-lg transition hover:bg-indigo-100 {{ request()->routeIs('kedatangan.*') ? 'bg-indigo-100 text-indigo-700 font-semibold' : 'text-gray-700' }}">
                     <i class="fas fa-truck-loading w-5 h-5 mr-3"></i>
                     Kelola Kedatangan
-                </a>
-            </li>
-
-            <!-- Rating -->
-            <li>
-                <a href="{{ route('rating.index') }}"
-                    class="flex items-center px-4 py-2 rounded-lg transition hover:bg-indigo-100 {{ request()->routeIs('rating.*') ? 'bg-indigo-100 text-indigo-700 font-semibold' : 'text-gray-700' }}">
-                    <i class="fas fa-star w-5 h-5 mr-3"></i>
-                    Rating
                 </a>
             </li>
 

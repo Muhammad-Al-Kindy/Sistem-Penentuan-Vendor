@@ -144,7 +144,7 @@ class GoodsReceiptsController extends Controller
     public function kelolaKedatanganEdit($id)
     {
         $receipt = GoodsReceipts::with(['purchaseOrder', 'vendor', 'items'])->findOrFail($id);
-        $orders = PurchaseOrder::all();
+        $orders = PurchaseOrder::with('vendor')->get();
 
         // Prepare items with purchase order item IDs
         $itemsWithPOItemId = $receipt->items->map(function ($item) use ($receipt) {

@@ -1,14 +1,13 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Manajemen Pengguna'); ?>
 
-@section('title', 'Manajemen Pengguna')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="max-w-7xl mx-auto px-4 py-8">
-        @if (session('success'))
+        <?php if(session('success')): ?>
             <div class="mb-4 p-4 text-green-800 bg-green-200 rounded">
-                {{ session('success') }}
+                <?php echo e(session('success')); ?>
+
             </div>
-        @endif
+        <?php endif; ?>
         <!-- Breadcrumb -->
         <nav class="text-sm text-gray-500 mb-6">
             <a href="#" class="hover:underline">Home</a>
@@ -34,34 +33,37 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach ($users as $index => $user)
+                    <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">{{ $users->firstItem() + $index }}</td>
-                            <td class="px-6 py-4">{{ $user->name }}</td>
-                            <td class="px-6 py-4">{{ $user->email }}</td>
-                            <td class="px-6 py-4 {{ $user->role == 'Admin' ? 'text-blue-600' : 'text-green-600' }}">
-                                {{ $user->role }}</td>
+                            <td class="px-6 py-4"><?php echo e($users->firstItem() + $index); ?></td>
+                            <td class="px-6 py-4"><?php echo e($user->name); ?></td>
+                            <td class="px-6 py-4"><?php echo e($user->email); ?></td>
+                            <td class="px-6 py-4 <?php echo e($user->role == 'Admin' ? 'text-blue-600' : 'text-green-600'); ?>">
+                                <?php echo e($user->role); ?></td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('users.edit', $user->idUser) }}"
+                                <a href="<?php echo e(route('users.edit', $user->idUser)); ?>"
                                     class="text-sm text-blue-500 hover:underline"> <i class="ri-edit-box-line text-lg"></i>
                                 </a>
-                                <form action="{{ route('users.destroy', $user->idUser) }}" method="POST" class="inline"
+                                <form action="<?php echo e(route('users.destroy', $user->idUser)); ?>" method="POST" class="inline"
                                     data-delete-form>
-                                    @csrf
-                                    @method('DELETE')
+                                    <?php echo csrf_field(); ?>
+                                    <?php echo method_field('DELETE'); ?>
                                     <button type="submit" class="text-sm text-red-500 hover:underline ml-2" "
                                         >Hapus</button>
                                 </form>
                             </td>
                         </tr>
-     @endforeach
+     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination -->
         <div class="mt-6 flex justify-end">
-            {{ $users->links() }}
+            <?php echo e($users->links()); ?>
+
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Aplikasi\Laragon\laragon\www\skripsi_kindyv2\Sistem_Pemilihan_Vendor\resources\views/users/index.blade.php ENDPATH**/ ?>

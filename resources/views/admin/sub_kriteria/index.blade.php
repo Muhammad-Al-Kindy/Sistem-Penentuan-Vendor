@@ -43,16 +43,15 @@
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <div class="flex justify-center gap-2">
                                     <a href="{{ route('subkriteria.edit', $sub->idSubKriteria) }}"
-                                        class="inline-flex items-center bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded text-sm font-semibold">
-                                        <i class="ri-edit-box-line mr-1"></i> Edit
+                                        class="text-yellow-600 hover:text-yellow-800">
+                                        <i class="ri-edit-box-line text-lg"></i>
                                     </a>
                                     <form action="{{ route('subkriteria.destroy', $sub->idSubKriteria) }}" method="POST"
                                         data-delete-form>
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit"
-                                            class="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-semibold">
-                                            <i class="ri-delete-bin-line mr-1"></i> Hapus
+                                        <button type="submit" class="text-red-600 hover:text-red-800">
+                                            <i class="ri-delete-bin-line text-lg"></i>
                                         </button>
                                     </form>
                                 </div>

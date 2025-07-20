@@ -78,7 +78,8 @@
                                         <i class="ri-edit-box-line text-lg"></i>
                                     </a>
                                     <form data-delete-form
-                                        action="<?php echo e(route('kedatangan.destroy', $receipt->idGoodsReceipt)); ?>" method="POST">
+                                        action="<?php echo e(route('kedatangan.destroy', $receipt->idGoodsReceipt)); ?>" method="POST"
+                                        data-delete-form>
                                         <?php echo csrf_field(); ?>
                                         <?php echo method_field('DELETE'); ?>
                                         <button type="submit" class="text-red-600 hover:text-red-800">

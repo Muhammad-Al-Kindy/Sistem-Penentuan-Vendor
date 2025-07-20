@@ -67,8 +67,8 @@
                             <td class="px-6 py-4 whitespace-nowrap"><?php echo e($kriteria->tipe); ?></td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <a href="<?php echo e(route('subkriteria.index', ['kriteriaId' => $kriteria->idKriteria])); ?>"
-                                    class="inline-flex items-center bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded text-sm font-semibold">
-                                    <i class="ri-edit-box-line mr-1"></i> Detail
+                                    class="text-yellow-600 hover:text-yellow-800">
+                                    <i class="ri-edit-box-line text-lg"></i>
                                 </a>
                             </td>
                         </tr>

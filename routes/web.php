@@ -14,6 +14,8 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\NonConformanceController;
 use App\Http\Controllers\VendorUpdateController;
 use App\Models\VendorUpdate;
+use App\Http\Controllers\UserController;
+
 
 // --- Login ---
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -62,6 +64,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::post('/chat/message', [ChatController::class, 'store'])->name('chat.message.store');
     Route::get('/chat-messages/{vendorId}', [ChatController::class, 'fetchMessages'])->name('chat.messages.fetch');
+
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
 // --- Vendor Only ---
@@ -84,7 +91,7 @@ Route::get('/rating', fn() => view('rating.index'))->name('rating.index');
 Route::get('/rating/tambah', fn() => view('rating.add'))->name('rating.add');
 Route::get('/rating/edit', fn() => view('rating.edit'))->name('rating.edit');
 Route::get('/rekomendasi', fn() => view('rekomendasi.index'))->name('rekomendasi.index');
-Route::view('/users', 'users.index')->name('users.index');
+
 
 // --- Smart Form ---
 Route::get('/smart-form', [SmartController::class, 'form'])->name('smart.form');

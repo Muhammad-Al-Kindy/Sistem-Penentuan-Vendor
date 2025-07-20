@@ -6,6 +6,8 @@ import "./update.js";
 import "./updateVendor.js";
 import "./updateSubKriteria.js";
 import "./debug_invalid_requests.js";
+import "./updateKedatangan.js";
+import "./user-update.js";
 import "../css/app.css";
 import "../js/chat.js";
 

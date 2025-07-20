@@ -61,7 +61,8 @@
                                         <i class="ri-edit-box-line text-lg"></i>
                                     </a>
                                     <form data-delete-form
-                                        action="{{ route('kedatangan.destroy', $receipt->idGoodsReceipt) }}" method="POST">
+                                        action="{{ route('kedatangan.destroy', $receipt->idGoodsReceipt) }}" method="POST"
+                                        data-delete-form>
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-800">
