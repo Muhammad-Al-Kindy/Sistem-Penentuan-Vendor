@@ -10,7 +10,7 @@
 
             <!-- Form -->
             <form action="{{ url('/purchase-order/update/' . $purchaseOrder->idPurchaseOrder) }}" method="POST"
-                class="space-y-6" data-update-form>
+                class="space-y-6" data-purchaseorderedit-form-admin>
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="id" value="{{ $purchaseOrder->idPurchaseOrder }}">
@@ -89,8 +89,7 @@
                     ])
                 </div>
 
-                <!-- RFQ Details Accordion -->
-                @include('components.rfq-form')
+
                 <!-- Buttons -->
                 <div class="flex justify-end gap-4 mt-6">
                     <a href="{{ route('purchase.index') }}"
@@ -117,6 +116,9 @@
     </script>
 
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script type="module" src="{{ asset('js/updatePurchaseOrder.js') }}"></script>
+    
+
 
     @vite('resources/js/app.js')
 @endsection

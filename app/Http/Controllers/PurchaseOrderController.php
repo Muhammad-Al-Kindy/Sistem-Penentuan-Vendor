@@ -160,9 +160,8 @@ class PurchaseOrderController extends Controller
     {
         if ($request->header('Content-Type') === 'application/json') {
             $data = json_decode($request->getContent(), true);
-            $request->replace($data); // Ini lebih aman daripada merge
+            $request->replace($data);
         }
-
 
         $validatedData = $request->validate([
             'vendorId' => 'required|exists:vendors,idVendor',
@@ -178,36 +177,31 @@ class PurchaseOrderController extends Controller
             'items.*.materialVendorPriceId' => 'required|exists:material_vendor_prices,idMaterialVendorPrice',
             'items.*.kuantitas' => 'required|numeric|min:1',
             'items.*.batasDiterima' => 'nullable|date',
+            'items.*.mataUang' => 'nullable|string',
+            'items.*.vat' => 'nullable|numeric',
+            'items.*.harga' => 'nullable|numeric',
         ]);
-
-        // dd($validatedData);
 
         DB::beginTransaction();
 
         try {
             $purchaseOrder = PurchaseOrder::findOrFail($id);
-            // Convert empty strings to null for nullable date fields
-            $tanggalPO = $validatedData['tanggalPO'] !== '' ? $validatedData['tanggalPO'] : null;
-            $tanggalRevisi = $validatedData['tanggalRevisi'] !== '' ? $validatedData['tanggalRevisi'] : null;
-            $noRevisi = $validatedData['noRevisi'] !== '' ? $validatedData['noRevisi'] : null;
-            $noKontrak = $validatedData['noKontrak'] !== '' ? $validatedData['noKontrak'] : null;
-            $incoterm = $validatedData['incoterm'] !== '' ? $validatedData['incoterm'] : null;
 
             $purchaseOrder->update([
                 'vendorId' => $validatedData['vendorId'],
                 'noPO' => $validatedData['noPO'],
-                'tanggalPO' => $tanggalPO,
-                'noKontrak' => $noKontrak,
-                'noRevisi' => $noRevisi,
-                'tanggalRevisi' => $tanggalRevisi,
-                'incoterm' => $incoterm,
+                'tanggalPO' => $validatedData['tanggalPO'] ?? null,
+                'noKontrak' => $validatedData['noKontrak'] ?? null,
+                'noRevisi' => $validatedData['noRevisi'] ?? null,
+                'tanggalRevisi' => $validatedData['tanggalRevisi'] ?? null,
+                'incoterm' => $validatedData['incoterm'] ?? null,
             ]);
 
             foreach ($validatedData['items'] as $itemData) {
                 $materialVendorPrice = MaterialVendorPrice::findOrFail($itemData['materialVendorPriceId']);
-                $hargaPerUnit = $materialVendorPrice->harga;
-                $mataUang = $materialVendorPrice->mataUang;
-                $vat = $materialVendorPrice->vat ?? 0;
+                $hargaPerUnit = $itemData['harga'] ?? $materialVendorPrice->harga;
+                $mataUang = $itemData['mataUang'] ?? $materialVendorPrice->mataUang;
+                $vat = $itemData['vat'] ?? $materialVendorPrice->vat ?? 0;
                 $total = $hargaPerUnit * $itemData['kuantitas'];
 
                 if (!empty($itemData['id'])) {
@@ -234,11 +228,27 @@ class PurchaseOrderController extends Controller
                         'total' => $total,
                     ]);
                 }
+
+                // Optional: Update Material jika kamu ingin ubah nama/desc dari frontend
+                // $material = \App\Models\Material::find($itemData['materialId']);
+                // if ($material && isset($itemData['material_name'])) {
+                //     $material->update([
+                //         'namaMaterial' => $itemData['material_name'],
+                //         'satuanMaterial' => $itemData['material_unit'] ?? $material->satuanMaterial,
+                //         'deskripsiMaterial' => $itemData['material_description'] ?? $material->deskripsiMaterial,
+                //     ]);
+                // }
+
+                // Optional: update harga vendor jika admin edit harga/matauang langsung
+                $materialVendorPrice->update([
+                    'harga' => $itemData['harga'] ?? $materialVendorPrice->harga,
+                    'mataUang' => $itemData['mataUang'] ?? $materialVendorPrice->mataUang,
+                    'vat' => $itemData['vat'] ?? $materialVendorPrice->vat,
+                ]);
             }
 
             DB::commit();
             Log::info('DATA MASUK:', $request->all());
-
 
             return response()->json(['success' => true, 'message' => 'Purchase order berhasil diperbarui.', 'purchaseOrder' => $purchaseOrder]);
         } catch (\Exception $e) {
@@ -247,6 +257,7 @@ class PurchaseOrderController extends Controller
             return response()->json(['success' => false, 'message' => 'Gagal memperbarui purchase order.', 'error' => $e->getMessage()], 500);
         }
     }
+
 
     public function destroy($id)
     {

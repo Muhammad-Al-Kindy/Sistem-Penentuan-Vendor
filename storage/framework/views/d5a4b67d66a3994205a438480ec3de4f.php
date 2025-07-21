@@ -8,7 +8,7 @@
 
             <!-- Form -->
             <form action="<?php echo e(url('/purchase-order/update/' . $purchaseOrder->idPurchaseOrder)); ?>" method="POST"
-                class="space-y-6" data-update-form>
+                class="space-y-6" data-purchaseorderedit-form-admin>
                 <?php echo csrf_field(); ?>
                 <?php echo method_field('PUT'); ?>
                 <input type="hidden" name="id" value="<?php echo e($purchaseOrder->idPurchaseOrder); ?>">
@@ -88,8 +88,7 @@
                     ], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                 </div>
 
-                <!-- RFQ Details Accordion -->
-                <?php echo $__env->make('components.rfq-form', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
                 <!-- Buttons -->
                 <div class="flex justify-end gap-4 mt-6">
                     <a href="<?php echo e(route('purchase.index')); ?>"
@@ -116,6 +115,9 @@
     </script>
 
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script type="module" src="<?php echo e(asset('js/updatePurchaseOrder.js')); ?>"></script>
+    
+
 
     <?php echo app('Illuminate\Foundation\Vite')('resources/js/app.js'); ?>
 <?php $__env->stopSection(); ?>

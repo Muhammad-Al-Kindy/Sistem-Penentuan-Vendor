@@ -28,7 +28,6 @@
                     <tr>
                         <td class="px-4 py-2">
                             <input type="hidden" :name="`items[${index}][id]`" x-model="item.id" />
-
                             <select :name="`items[${index}][materialId]`" x-model="item.materialId"
                                 class="w-full border border-gray-300 rounded px-2 py-1 focus:ring-blue-500"
                                 @change="onMaterialChange(index)" required>
@@ -77,6 +76,39 @@
         </table>
     </div>
 
+    <!-- Modal Tambah Material -->
+    <div x-show="showAddMaterialModal"
+        class="fixed inset-0 bg-gray-50 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+            <h3 class="text-lg font-semibold mb-4">Tambah Material Baru</h3>
+            <div class="space-y-2">
+                <label class="block text-sm">Vendor</label>
+                <select x-model="modal.vendorId" class="w-full border rounded px-3 py-2">
+                    <option value="">Pilih Vendor</option>
+                    <template x-for="vendor in vendors" :key="vendor.idVendor">
+                        <option :value="vendor.idVendor" x-text="vendor.namaVendor"></option>
+                    </template>
+                </select>
+                <input type="text" x-model="modal.kodeMaterial" placeholder="Kode Material"
+                    class="w-full border rounded px-3 py-2">
+                <input type="text" x-model="modal.namaMaterial" placeholder="Nama Material"
+                    class="w-full border rounded px-3 py-2">
+                <input type="text" x-model="modal.satuanMaterial" placeholder="Satuan Material"
+                    class="w-full border rounded px-3 py-2">
+                <textarea x-model="modal.deskripsiMaterial" placeholder="Deskripsi Material" class="w-full border rounded px-3 py-2"></textarea>
+                <input type="number" x-model="modal.harga" placeholder="Harga" class="w-full border rounded px-3 py-2">
+                <input type="text" x-model="modal.mataUang" placeholder="Mata Uang"
+                    class="w-full border rounded px-3 py-2">
+            </div>
+            <div class="text-red-500 mt-2" x-text="addMaterialError"></div>
+            <div class="flex justify-end gap-2 mt-4">
+                <button @click="showAddMaterialModal = false"
+                    class="px-4 py-2 bg-gray-300 text-gray-800 rounded">Batal</button>
+                <button @click="submitNewMaterial" class="px-4 py-2 bg-blue-600 text-white rounded">Simpan</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function purchaseOrderItemsComponent() {
             return {
@@ -85,6 +117,16 @@
                 vendors: [],
                 materials: [],
                 showAddMaterialModal: false,
+                modal: {
+                    vendorId: '',
+                    kodeMaterial: '',
+                    namaMaterial: '',
+                    satuanMaterial: '',
+                    deskripsiMaterial: '',
+                    harga: '',
+                    mataUang: ''
+                },
+                addMaterialError: '',
 
                 get mappedMaterials() {
                     return this.materials.map(m => ({
@@ -95,7 +137,7 @@
 
                 initializeData() {
                     this.items = window.initialItems.map(i => ({
-                        id: i.id || i.idPurchaseOrderItem || '', // PERBAIKAN
+                        id: i.id || i.idPurchaseOrderItem || '',
                         materialId: i.materialId?.toString() || '',
                         materialVendorPriceId: i.materialVendorPriceId?.toString() || '',
                         kuantitas: i.kuantitas,
@@ -103,8 +145,6 @@
                         vat: i.vat,
                         batasDiterima: i.batasDiterima?.split('T')[0] || ''
                     }));
-
-                    console.log('Alpine initialized items:', this.items);
 
                     this.selectedVendorId = window.initialVendorId;
                     this.vendors = window.vendors;
@@ -126,10 +166,9 @@
                     this.items.forEach((_, index) => this.fetchMaterialVendorPrice(index));
                 },
 
-
                 addItem() {
                     this.items.push({
-                        id: '', // PENTING untuk validasi
+                        id: '',
                         materialId: '',
                         materialVendorPriceId: '',
                         kuantitas: '',
@@ -148,6 +187,7 @@
                     if (item.materialId === 'add_new') {
                         this.showAddMaterialModal = true;
                         item.materialId = '';
+                        this.modal.vendorId = this.selectedVendorId;
                     } else {
                         this.fetchMaterialVendorPrice(index);
                     }
@@ -177,14 +217,57 @@
                         .then(response => response.json())
                         .then(data => {
                             this.materials = data.materials || [];
-
-                            this.items.forEach(item => {
-                                if (!item.materialId) item.materialId = '';
-                            });
                         })
                         .catch(() => {
                             this.materials = window.materials;
                         });
+                },
+
+                submitNewMaterial() {
+                    if (!this.modal.kodeMaterial.trim() || !this.modal.namaMaterial.trim() || !this.modal.vendorId) {
+                        this.addMaterialError = 'Vendor, Kode dan Nama Material wajib diisi.';
+                        return;
+                    }
+
+                    fetch('/materials', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content')
+                            },
+                            body: JSON.stringify(this.modal)
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.material) {
+                                this.materials.push(data.material);
+                                if (data.material.vendor_id == this.selectedVendorId) {
+                                    this.items[this.items.length - 1].materialId = data.material.idMaterial;
+                                    this.items[this.items.length - 1].materialVendorPriceId = data.material
+                                        .idMaterialVendorPrice || '';
+                                }
+                                this.showAddMaterialModal = false;
+                                this.resetModal();
+                            }
+                        })
+                        .catch(() => {
+                            this.addMaterialError = 'Gagal menyimpan material.';
+                        });
+                },
+
+                resetModal() {
+                    this.modal = {
+                        vendorId: this.selectedVendorId,
+                        kodeMaterial: '',
+                        namaMaterial: '',
+                        satuanMaterial: '',
+                        deskripsiMaterial: '',
+                        harga: '',
+                        mataUang: ''
+                    };
+                    this.addMaterialError = '';
                 }
             };
         }

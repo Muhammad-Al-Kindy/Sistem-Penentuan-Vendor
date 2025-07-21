@@ -10,6 +10,7 @@ import "./updateKedatangan.js";
 import "./user-update.js";
 import "../css/app.css";
 import "../js/chat.js";
+import "../js/purchaseorderedit-admin.js";
 
 Echo.channel("chat-channel").listen(".chat-event", (e) => {
     console.log("Pesan masuk:", e.message);
