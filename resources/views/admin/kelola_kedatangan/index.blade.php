@@ -21,7 +21,7 @@
                     class="w-full md:w-96 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400"
                     value="{{ request('search') }}">
                 <button type="submit" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                    🔍 Cari
+                    <i class="ri-search-line mr-1"></i> Cari
                 </button>
             </form>
             <a href="{{ route('kedatangan.add') }}"

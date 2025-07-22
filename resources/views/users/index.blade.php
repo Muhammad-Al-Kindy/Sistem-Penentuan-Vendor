@@ -10,11 +10,10 @@
             </div>
         @endif
         <!-- Breadcrumb -->
-        <nav class="text-sm text-gray-500 mb-6">
-            <a href="#" class="hover:underline">Home</a>
-            <span class="mx-2">/</span>
-            <span>Manajemen Pengguna</span>
-        </nav>
+        @php
+            $breadcrumbItems = [['label' => 'Home', 'url' => ''], ['label' => 'Manajemen Pengguna', 'url' => '']];
+        @endphp
+        <x-breadcrumb :items="$breadcrumbItems" />
 
         <!-- Header -->
         <div class="mb-6">
@@ -50,10 +49,10 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-sm text-red-500 hover:underline ml-2" "
-                                        >Hapus</button>
-                                </form>
-                            </td>
-                        </tr>
+                                                    >Hapus</button>
+                                            </form>
+                                        </td>
+                                    </tr>
      @endforeach
                 </tbody>
             </table>

@@ -16,14 +16,27 @@ class PurchaseOrderController extends Controller
     {
         $search = $request->input('search');
 
-        $order = PurchaseOrder::with('vendor.contacts')->when($search, function ($query, $search) {
-            $query->whereHas('vendor', function ($query) use ($search) {
-                $query->where('namaVendor', 'like', "%{$search}%");
-            });
-        })->paginate(10);
+        $order = PurchaseOrder::with('vendor.contacts')
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('noPO', 'like', "%{$search}%")
+                        ->orWhere('tanggalPO', 'like', "%{$search}%")
+                        ->orWhere('noKontrak', 'like', "%{$search}%")
+                        ->orWhere('incoterm', 'like', "%{$search}%")
+                        ->orWhereHas('vendor', function ($q2) use ($search) {
+                            $q2->where('namaVendor', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('vendor.contacts', function ($q3) use ($search) {
+                            $q3->where('contactPerson', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         return view('admin.purchase_order.index', compact('order'));
     }
+
 
     public function getMaterialVendorPrices(Request $request)
     {

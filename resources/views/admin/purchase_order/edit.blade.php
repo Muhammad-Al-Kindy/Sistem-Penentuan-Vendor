@@ -4,9 +4,18 @@
 
 @section('content')
     <div id="app" class="max-w-7xl mx-auto px-4 py-8">
+        @php
+            $breadcrumbItems = [
+                ['label' => 'Home', 'url' => route('purchase.index')],
+                ['label' => 'Purchase Order', 'url' => route('purchase.index')],
+                ['label' => 'Edit Purchase Order', 'url' => ''],
+            ];
+        @endphp
+        <x-breadcrumb :items="$breadcrumbItems" />
         <div class="bg-white shadow-md rounded-lg p-6">
             <!-- Title -->
             <h1 class="text-2xl font-bold text-gray-800 mb-6">Edit Purchase Order</h1>
+
 
             <!-- Form -->
             <form action="{{ url('/purchase-order/update/' . $purchaseOrder->idPurchaseOrder) }}" method="POST"
@@ -117,7 +126,7 @@
 
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script type="module" src="{{ asset('js/updatePurchaseOrder.js') }}"></script>
-    
+
 
 
     @vite('resources/js/app.js')

@@ -23,7 +23,7 @@
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search vendor..."
                         class="w-full md:w-80 sm:w-52  border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-400">
                     <button type="submit" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                        🔍 Cari
+                        <i class="ri-search-line mr-1"></i> Cari
                     </button>
                 </form>
             </div>
@@ -87,13 +87,8 @@
             </table>
         </div>
 
-        <div class="mt-6 flex justify-end">
-            <nav class="inline-flex">
-                <a href="#" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-l">«</a>
-                <a href="#" class="px-3 py-1 bg-blue-500 text-white">1</a>
-                <a href="#" class="px-3 py-1 bg-gray-200 hover:bg-gray-300">2</a>
-                <a href="#" class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-r">»</a>
-            </nav>
+        <div class="mt-4 flex justify-center">
+            {{ $order->appends(request()->query())->links() }}
         </div>
     </div>
 @endsection

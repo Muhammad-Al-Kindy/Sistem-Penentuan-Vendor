@@ -23,7 +23,7 @@ class GoodsReceiptsItems extends Model
 
     public function items()
     {
-        return $this->belongsTo(Material::class);
+        return $this->belongsTo(Material::class, 'materialId', 'idMaterial');
     }
 
     public function nonConformances()

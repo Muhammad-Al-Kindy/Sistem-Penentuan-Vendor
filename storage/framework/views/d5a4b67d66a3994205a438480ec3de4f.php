@@ -2,9 +2,37 @@
 
 <?php $__env->startSection('content'); ?>
     <div id="app" class="max-w-7xl mx-auto px-4 py-8">
+        <?php
+            $breadcrumbItems = [
+                ['label' => 'Home', 'url' => route('purchase.index')],
+                ['label' => 'Purchase Order', 'url' => route('purchase.index')],
+                ['label' => 'Edit Purchase Order', 'url' => ''],
+            ];
+        ?>
+        <?php if (isset($component)) { $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.breadcrumb','data' => ['items' => $breadcrumbItems]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('breadcrumb'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['items' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($breadcrumbItems)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $attributes = $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $component = $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
         <div class="bg-white shadow-md rounded-lg p-6">
             <!-- Title -->
             <h1 class="text-2xl font-bold text-gray-800 mb-6">Edit Purchase Order</h1>
+
 
             <!-- Form -->
             <form action="<?php echo e(url('/purchase-order/update/' . $purchaseOrder->idPurchaseOrder)); ?>" method="POST"
@@ -116,7 +144,7 @@
 
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script type="module" src="<?php echo e(asset('js/updatePurchaseOrder.js')); ?>"></script>
-    
+
 
 
     <?php echo app('Illuminate\Foundation\Vite')('resources/js/app.js'); ?>

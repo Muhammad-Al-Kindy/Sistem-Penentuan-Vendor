@@ -9,15 +9,46 @@ use Illuminate\Support\Facades\Log;
 
 class GoodsReceiptsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $receipts = GoodsReceipts::with(['purchaseOrder.vendor', 'items'])->paginate(10);
+        $search = $request->input('search');
+
+        $receipts = GoodsReceipts::with(['purchaseOrder.vendor', 'items'])
+            ->when($search, function ($query, $search) {
+                $query->whereHas('purchaseOrder.vendor', function ($q) use ($search) {
+                    $q->where('namaVendor', 'like', "%{$search}%");
+                })
+                    ->orWhereHas('items.material', function ($q) use ($search) {
+                        $q->where('namaMaterial', 'like', "%{$search}%");
+                    })
+                    ->orWhere('tanggal_terima', 'like', "%{$search}%")
+                    ->orWhere('tanggal_dok', 'like', "%{$search}%");
+            })
+            ->orderBy('tanggal', 'desc')
+            ->paginate(10);
+
         return view('admin.kelola_kedatangan.index', compact('receipts'));
     }
 
-    public function kelolaKedatanganIndex()
+
+    public function kelolaKedatanganIndex(Request $request)
     {
-        $receipts = GoodsReceipts::with(['purchaseOrder.vendor', 'items'])->paginate(10);
+        $search = $request->input('search');
+
+        $receipts = GoodsReceipts::with(['purchaseOrder.vendor', 'items'])
+            ->when($search, function ($query, $search) {
+                $query->whereHas('purchaseOrder.vendor', function ($q) use ($search) {
+                    $q->where('namaVendor', 'like', "%{$search}%");
+                })
+                    ->orWhereHas('items.items', function ($q) use ($search) {
+                        $q->where('namaMaterial', 'like', "%{$search}%");
+                    })
+                    ->orWhere('tanggal_terima', 'like', "%{$search}%")
+                    ->orWhere('tanggal_dok', 'like', "%{$search}%");
+            })
+            ->orderBy('tanggal_terima', 'desc')
+            ->paginate(10);
+
         return view('admin.kelola_kedatangan.index', compact('receipts'));
     }
 

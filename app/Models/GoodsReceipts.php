@@ -19,7 +19,7 @@ class GoodsReceipts extends Model
     // GoodsReceipt.php
     public function purchaseOrder()
     {
-        return $this->belongsTo(PurchaseOrder::class);
+        return $this->belongsTo(PurchaseOrder::class, 'purchaseOrderId', 'idPurchaseOrder');
     }
 
     public function vendor()

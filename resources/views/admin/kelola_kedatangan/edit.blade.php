@@ -4,6 +4,15 @@
 
 @section('content')
     <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Breadcrumb -->
+        @php
+            $breadcrumbItems = [
+                ['label' => 'Home', 'url' => ''],
+                ['label' => 'Kelola Kedatangan', 'url' => route('kedatangan.index')],
+                ['label' => 'Edit Kelola Kedatangan', 'url' => ''],
+            ];
+        @endphp
+        <x-breadcrumb :items="$breadcrumbItems" />
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Form Edit Kedatangan</h1>
 
         <form action="{{ route('kedatangan.update', $goods_receipt->idGoodsReceipt) }}" method="POST" data-update-form>
