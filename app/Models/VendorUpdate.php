@@ -17,11 +17,12 @@ class VendorUpdate extends Model
         'tanggal_update',
         'jenis_update',
         'dokumen',
+        'keterangan',
     ];
 
     public function purchaseOrder()
     {
-        return $this->belongsTo(PurchaseOrder::class, 'purchase_order_id', 'id');
+        return $this->belongsTo(PurchaseOrder::class, 'purchase_order_id', 'idPurchaseOrder');
     }
 
     public function vendor()

@@ -1,8 +1,6 @@
-@extends('layouts.appvendor')
+<?php $__env->startSection('title', 'Purchase Orders'); ?>
 
-@section('title', 'Purchase Orders')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="max-w-6xl mx-auto px-6 py-10">
         <h1 class="text-3xl font-bold text-gray-800 mb-8">Purchase Orders</h1>
 
@@ -25,55 +23,58 @@
                     </tr>
                 </thead>
                 <tbody id="purchaseOrdersTableBody" class="divide-y divide-gray-200">
-                    @forelse ($purchaseOrders as $order)
+                    <?php $__empty_1 = true; $__currentLoopData = $purchaseOrders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr>
-                            <td class="px-6 py-4">{{ $order->noPO }}</td>
+                            <td class="px-6 py-4"><?php echo e($order->noPO); ?></td>
                             <td class="px-6 py-4">
-                                {{ $order->tanggalPO ? \Carbon\Carbon::parse($order->tanggalPO)->format('Y-m-d') : '-' }}
+                                <?php echo e($order->tanggalPO ? \Carbon\Carbon::parse($order->tanggalPO)->format('Y-m-d') : '-'); ?>
+
                             </td>
                             <td class="px-6 py-4">
-                                @foreach ($order->items as $item)
-                                    {{ $item->material->namaMaterial ?? '-' }}@if (!$loop->last)
+                                <?php $__currentLoopData = $order->items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php echo e($item->material->namaMaterial ?? '-'); ?><?php if(!$loop->last): ?>
                                         ,
-                                    @endif
-                                @endforeach
+                                    <?php endif; ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </td>
                             <td class="px-6 py-4">
-                                @if ($order->vendorUpdates->isNotEmpty())
-                                    @php
+                                <?php if($order->vendorUpdates->isNotEmpty()): ?>
+                                    <?php
                                         $latestUpdate = $order->latestVendorUpdate;
-                                    @endphp
+                                    ?>
                                     <span class="text-green-600 font-semibold">
-                                        {{ $latestUpdate->jenis_update ?? 'No updates' }}
+                                        <?php echo e($latestUpdate->jenis_update ?? 'No updates'); ?>
+
                                     </span>
-                                @else
+                                <?php else: ?>
                                     <span class="text-gray-400">No updates</span>
-                                @endif
+                                <?php endif; ?>
                             </td>
                             <td class="px-6 py-4">
-                                @php
+                                <?php
                                     $latestUpdate = $order->latestVendorUpdate;
-                                @endphp
-                                @if ($latestUpdate && strtolower($latestUpdate->jenis_update) === 'dibatalkan')
+                                ?>
+                                <?php if($latestUpdate && strtolower($latestUpdate->jenis_update) === 'dibatalkan'): ?>
                                     <span class="text-gray-400 cursor-not-allowed"
                                         title="Edit disabled for cancelled updates">Edit</span>
-                                @else
-                                    <a href="{{ route('vendor.purchase_order.edit', $order->idPurchaseOrder) }}"
+                                <?php else: ?>
+                                    <a href="<?php echo e(route('vendor.purchase_order.edit', $order->idPurchaseOrder)); ?>"
                                         class="text-blue-600 hover:text-blue-800 font-semibold">Edit</a>
-                                @endif
+                                <?php endif; ?>
                             </td>
                         </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <tr>
                                 <td colspan="7" class="px-6 py-4 text-center text-gray-500">No purchase orders found.</td>
                             </tr>
-                        @endforelse
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
 
             <div class="mt-4">
-                {{ $purchaseOrders->links() }}
+                <?php echo e($purchaseOrders->links()); ?>
+
             </div>
         </div>
 
@@ -88,4 +89,6 @@
                 });
             });
         </script>
-    @endsection
+    <?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.appvendor', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Aplikasi\Laragon\laragon\www\skripsi_kindyv2\Sistem_Pemilihan_Vendor\resources\views/vendor/purchase_order.blade.php ENDPATH**/ ?>

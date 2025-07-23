@@ -46,6 +46,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/purchase-order/edit/{purchaseOrder}', [PurchaseOrderController::class, 'edit'])->name('purchase.edit');
     Route::put('/purchase-order/update/{purchaseOrder}', [PurchaseOrderController::class, 'update'])->name('purchase.update');
     Route::delete('/purchase-order/delete/{id}', [PurchaseOrderController::class, 'destroy'])->name('purchase.destroy');
+    Route::get('/purchase/{id}/progress', [PurchaseOrderController::class, 'showProgress'])->name('purchase.progress');
+    Route::patch('/purchase/{id}/cancel', [PurchaseOrderController::class, 'cancel'])->name('purchase.cancel');
+
     Route::get('/material-vendor-prices', [PurchaseOrderController::class, 'getMaterialVendorPrices'])->name('material.vendor.prices');
     Route::post('/materials', [MaterialController::class, 'store'])->name('materials.store');
     Route::get('/materials-by-vendor', [MaterialController::class, 'getByVendor'])->name('materials.by.vendor');
@@ -63,7 +66,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/chat/messages', [ChatController::class, 'fetchMessages'])->name('chat.messages.fetch');
 
     Route::post('/chat/message', [ChatController::class, 'store'])->name('chat.message.store');
-    Route::get('/chat-messages/{vendorId}', [ChatController::class, 'fetchMessages'])->name('chat.messages.fetch');
+    Route::get('/chat-messages/{vendorId}', [ChatController::class, 'fetchMessages'])->name('chat.messages.fetch.byVendor');
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');

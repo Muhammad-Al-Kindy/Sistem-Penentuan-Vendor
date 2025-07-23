@@ -54,7 +54,7 @@
                     @forelse($order as $index => $orderItem)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">{{ $orderItem->noPO }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $orderItem->tanggalPO }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $orderItem->tanggalPO->format('Y-m-d') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $orderItem->vendor->namaVendor ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $orderItem->noKontrak ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $orderItem->incoterm ?? '-' }}</td>
@@ -65,6 +65,11 @@
                                     <a href="{{ route('purchase.edit', $orderItem->idPurchaseOrder) }}"
                                         class="text-yellow-600 hover:text-yellow-800">
                                         <i class="ri-edit-box-line text-lg"></i>
+                                    </a>
+                                    {{-- Lihat Progress --}}
+                                    <a href="{{ route('purchase.progress', $orderItem->idPurchaseOrder) }}"
+                                        class="text-blue-600 hover:text-blue-800" title="Lihat Progress">
+                                        <i class="ri-timeline-view text-lg"></i>
                                     </a>
                                     <form action="{{ route('purchase.destroy', $orderItem->idPurchaseOrder) }}"
                                         method="POST" data-delete-form>

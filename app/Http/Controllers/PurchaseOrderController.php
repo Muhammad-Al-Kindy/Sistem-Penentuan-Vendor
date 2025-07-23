@@ -6,6 +6,7 @@ use App\Models\PurchaseOrder;
 use App\Models\Vendor;
 use App\Models\Material;
 use App\Models\MaterialVendorPrice;
+use App\Models\VendorUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -268,6 +269,71 @@ class PurchaseOrderController extends Controller
             DB::rollBack();
             Log::error('Update error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Gagal memperbarui purchase order.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function showProgress($id)
+    {
+        $order = PurchaseOrder::with(['vendor', 'vendorUpdates'])->findOrFail($id);
+
+        $latestUpdate = $order->vendorUpdates()->orderByDesc('tanggal_update')->first();
+
+        return view('admin.purchase_order.progress', compact('order', 'latestUpdate'));
+    }
+
+    public function cancel(Request $request, $id)
+    {
+        // Validate input first
+        $request->validate([
+            'keterangan' => 'required|string|max:1000',
+        ]);
+
+        // Find PurchaseOrder by ID
+        $purchaseOrder = PurchaseOrder::findOrFail($id);
+
+        // Log the cancellation request
+        Log::info('Cancel request keterangan:', ['keterangan' => $request->input('keterangan')]);
+
+        // Check if already cancelled by checking latest vendor_update
+        $latestUpdate = VendorUpdate::where('purchase_order_id', $purchaseOrder->idPurchaseOrder)
+            ->orderByDesc('tanggal_update')
+            ->first();
+
+        if ($latestUpdate && $latestUpdate->jenis_update === 'Dibatalkan') {
+            return back()->with('error', 'Purchase Order sudah dibatalkan sebelumnya.');
+        }
+
+        // Database transaction
+        DB::beginTransaction();
+        try {
+
+
+            // Update latest vendor_update record
+            if ($latestUpdate) {
+                $latestUpdate->jenis_update = 'Dibatalkan';
+                $latestUpdate->keterangan = $request->input('keterangan');
+                $latestUpdate->tanggal_update = now();
+                $latestUpdate->save();
+            } else {
+                // If no vendor_update exists, create one
+                VendorUpdate::create([
+                    'purchase_order_id' => $purchaseOrder->idPurchaseOrder,
+                    'vendor_id' => $purchaseOrder->vendorId ?? null,
+                    'tanggal_update' => now(),
+                    'jenis_update' => 'Dibatalkan',
+                    'keterangan' => $request->input('keterangan'),
+                    'dokumen' => null,
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('purchase.progress', $id)
+                ->with('success', 'Purchase Order berhasil dibatalkan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Gagal membatalkan PO:', ['error' => $e->getMessage()]);
+            return back()->with('error', 'Terjadi kesalahan saat membatalkan PO.');
         }
     }
 
