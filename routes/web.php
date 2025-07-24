@@ -72,6 +72,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    //penilaian
+    Route::get('/rekomendasi', [SmartController::class, 'index'])->name('rekomendasi.index');
+    Route::match(['get', 'post'], '/smart-process', [SmartController::class, 'process'])->name('smart.process');
 });
 
 // --- Vendor Only ---
@@ -90,12 +94,10 @@ Route::middleware(['auth', 'vendor'])->prefix('vendor')->group(function () {
 
 // --- Static Pages ---
 Route::get('/dashboard', fn() => view('dashboard.index'))->name('dashboard.index');
-Route::get('/rating', fn() => view('rating.index'))->name('rating.index');
-Route::get('/rating/tambah', fn() => view('rating.add'))->name('rating.add');
-Route::get('/rating/edit', fn() => view('rating.edit'))->name('rating.edit');
-Route::get('/rekomendasi', fn() => view('rekomendasi.index'))->name('rekomendasi.index');
+
+// Route::get('/rekomendasi', fn() => view('rekomendasi.index'))->name('rekomendasi.index');
 
 
 // --- Smart Form ---
-Route::get('/smart-form', [SmartController::class, 'form'])->name('smart.form');
-Route::post('/smart-process', [SmartController::class, 'process'])->name('smart.process');
+// Route::get('/smart-form', [SmartController::class, 'form'])->name('smart.form');
+// Route::post('/smart-process', [SmartController::class, 'process'])->name('smart.process');
