@@ -17,8 +17,8 @@ class VendorSeeder extends Seeder
         // Create multiple vendor users if not exist
         $vendorUsers = User::where('role', 'vendor')->get();
 
-        if ($vendorUsers->count() < 5) {
-            $toCreate = 5 - $vendorUsers->count();
+        if ($vendorUsers->count() < 4) {
+            $toCreate = 4 - $vendorUsers->count();
             for ($i = 1; $i <= $toCreate; $i++) {
                 $vendorUsers[] = User::create([
                     'name' => 'Vendor User ' . ($vendorUsers->count() + $i),

@@ -1,44 +1,61 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Edit Kedatangan'); ?>
 
-@section('title', 'Edit Kedatangan')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Breadcrumb -->
-        @php
+        <?php
             $breadcrumbItems = [
                 ['label' => 'Home', 'url' => ''],
                 ['label' => 'Kelola Kedatangan', 'url' => route('kedatangan.index')],
                 ['label' => 'Edit Kelola Kedatangan', 'url' => ''],
             ];
-        @endphp
-        <x-breadcrumb :items="$breadcrumbItems" />
+        ?>
+        <?php if (isset($component)) { $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.breadcrumb','data' => ['items' => $breadcrumbItems]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('breadcrumb'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['items' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($breadcrumbItems)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $attributes = $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $component = $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
         <h1 class="text-2xl font-bold text-gray-800 mb-6">Form Edit Kedatangan</h1>
 
-        <form action="{{ route('kedatangan.update', $goods_receipt->idGoodsReceipt) }}" method="POST" data-update-form>
-            @csrf
-            @method('PUT')
+        <form action="<?php echo e(route('kedatangan.update', $goods_receipt->idGoodsReceipt)); ?>" method="POST" data-update-form>
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
 
             <div class="bg-white shadow-md rounded-lg p-6 space-y-6">
                 <div>
                     <label class="block mb-1 font-medium text-gray-700" for="no_dokumen">No Dokumen</label>
                     <input type="text" name="no_dokumen" id="no_dokumen"
                         class="w-full border border-gray-300 rounded px-4 py-2"
-                        value="{{ old('no_dokumen', $goods_receipt->no_dokumen) }}" required>
+                        value="<?php echo e(old('no_dokumen', $goods_receipt->no_dokumen)); ?>" required>
                 </div>
 
                 <div>
                     <label class="block mb-1 font-medium text-gray-700" for="tanggal_dok">Tanggal Dokumen</label>
                     <input type="date" name="tanggal_dok" id="tanggal_dok"
                         class="w-full border border-gray-300 rounded px-4 py-2"
-                        value="{{ old('tanggal_dok', $goods_receipt->tanggal_dok) }}" required>
+                        value="<?php echo e(old('tanggal_dok', $goods_receipt->tanggal_dok)); ?>" required>
                 </div>
 
                 <div>
                     <label class="block mb-1 font-medium text-gray-700" for="tanggal_terima">Tanggal Terima</label>
                     <input type="date" name="tanggal_terima" id="tanggal_terima"
                         class="w-full border border-gray-300 rounded px-4 py-2"
-                        value="{{ old('tanggal_terima', $goods_receipt->tanggal_terima) }}" required>
+                        value="<?php echo e(old('tanggal_terima', $goods_receipt->tanggal_terima)); ?>" required>
                 </div>
 
                 <div>
@@ -46,12 +63,13 @@
                     <select name="purchase_order_id" id="purchaseOrderId"
                         class="w-full border border-gray-300 rounded px-4 py-2" required>
                         <option value="">-- Pilih Purchase Order --</option>
-                        @foreach ($orders as $order)
-                            <option value="{{ $order->idPurchaseOrder }}"
-                                {{ old('purchase_order_id', $goods_receipt->purchaseOrderId) == $order->idPurchaseOrder ? 'selected' : '' }}>
-                                {{ $order->noPO }} - {{ $order->vendor->namaVendor ?? 'No Vendor' }}
+                        <?php $__currentLoopData = $orders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($order->idPurchaseOrder); ?>"
+                                <?php echo e(old('purchase_order_id', $goods_receipt->purchaseOrderId) == $order->idPurchaseOrder ? 'selected' : ''); ?>>
+                                <?php echo e($order->noPO); ?> - <?php echo e($order->vendor->namaVendor ?? 'No Vendor'); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
 
@@ -59,14 +77,14 @@
                     <label class="block mb-1 font-medium text-gray-700" for="no_surat_jalan">No Surat Jalan</label>
                     <input type="text" name="no_surat_jalan" id="no_surat_jalan"
                         class="w-full border border-gray-300 rounded px-4 py-2"
-                        value="{{ old('no_surat_jalan', $goods_receipt->no_surat_jalan) }}">
+                        value="<?php echo e(old('no_surat_jalan', $goods_receipt->no_surat_jalan)); ?>">
                 </div>
 
                 <div>
                     <label class="block mb-1 font-medium text-gray-700" for="proyek">Proyek</label>
                     <input type="text" name="proyek" id="proyek"
                         class="w-full border border-gray-300 rounded px-4 py-2"
-                        value="{{ old('proyek', $goods_receipt->proyek) }}">
+                        value="<?php echo e(old('proyek', $goods_receipt->proyek)); ?>">
                 </div>
 
             </div>
@@ -84,30 +102,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($itemsWithPOItemId as $item)
+                        <?php $__currentLoopData = $itemsWithPOItemId; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
-                                <td class="border border-gray-300 px-4 py-2">{{ $item->deskripsi }}</td>
-                                <td class="border border-gray-300 px-4 py-2 text-center">{{ $item->qty_po }}</td>
+                                <td class="border border-gray-300 px-4 py-2"><?php echo e($item->deskripsi); ?></td>
+                                <td class="border border-gray-300 px-4 py-2 text-center"><?php echo e($item->qty_po); ?></td>
                                 <td class="border border-gray-300 px-4 py-2">
-                                    <input type="number" name="qty_diterima[]" min="0" max="{{ $item->qty_po }}"
+                                    <input type="number" name="qty_diterima[]" min="0" max="<?php echo e($item->qty_po); ?>"
                                         class="w-full border border-gray-300 rounded px-2 py-1"
-                                        value="{{ old('item_qty_diterima.' . $loop->index, $item->qty_diterima) }}"
+                                        value="<?php echo e(old('item_qty_diterima.' . $loop->index, $item->qty_diterima)); ?>"
                                         required>
                                 </td>
                                 <td class="border border-gray-300 px-4 py-2">
-                                    <input type="hidden" name="item_ids[]" value="{{ $item->purchaseOrderItemId ?? '' }}">
-                                    <input type="number" name="qty_sesuai[]" min="0" max="{{ $item->qty_po }}"
+                                    <input type="hidden" name="item_ids[]" value="<?php echo e($item->purchaseOrderItemId ?? ''); ?>">
+                                    <input type="number" name="qty_sesuai[]" min="0" max="<?php echo e($item->qty_po); ?>"
                                         class="w-full border border-gray-300 rounded px-2 py-1"
-                                        value="{{ old('item_qty_sesuai.' . $loop->index, $item->qty_sesuai) }}" required>
+                                        value="<?php echo e(old('item_qty_sesuai.' . $loop->index, $item->qty_sesuai)); ?>" required>
                                 </td>
                             </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                 </table>
             </div>
 
             <div class="mt-6 flex justify-end gap-4">
-                <a href="{{ route('kedatangan.index') }}"
+                <a href="<?php echo e(route('kedatangan.index')); ?>"
                     class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded shadow">
                     ← Kembali
                 </a>
@@ -151,4 +169,6 @@
             }
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Aplikasi\Laragon\laragon\www\skripsi_kindyv2\Sistem_Pemilihan_Vendor\resources\views/admin/kelola_kedatangan/edit.blade.php ENDPATH**/ ?>

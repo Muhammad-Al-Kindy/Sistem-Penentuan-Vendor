@@ -1,38 +1,40 @@
 <?php
-// app/Http/Controllers/SmartController.php
+
 namespace App\Http\Controllers;
 
 use App\Models\ChatMessage;
-use Illuminate\Http\Request;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Illuminate\Support\Facades\Log;
-use App\Models\Vendor;
 use App\Models\Material;
 use App\Models\PurchaseOrder;
+use App\Models\Vendor;
 use App\Models\VendorUpdate;
+use App\Models\SubKriteria;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class SmartController extends Controller
 {
     public function index(Request $request)
     {
         $selectedMaterialId = $request->query('material_id');
-
         $vendors = Vendor::paginate(10);
         $materials = Material::all();
 
-        return view('admin.rekomendasi.index', [
-            'vendors' => $vendors,
-            'materials' => $materials,
-            'selectedMaterialId' => $selectedMaterialId,
-        ]);
+        return view('admin.rekomendasi.index', compact('vendors', 'materials', 'selectedMaterialId'));
     }
 
     public function process(Request $request)
     {
-        // Ambil daftar vendor unik yang pernah ada di PO
-        $vendors = Vendor::whereIn('idVendor', PurchaseOrder::pluck('vendorId'))->get();
+        $materialId = $request->input('material_id');
+
+        $vendors = Vendor::whereIn('idVendor', function ($q) use ($materialId) {
+            $q->select('po.vendorId')
+                ->from('purchase_orders as po')
+                ->join('purchase_order_items as poi', 'poi.purchaseOrderId', '=', 'po.idPurchaseOrder')
+                ->where('poi.materialId', $materialId);
+        })->get();
 
         $matrix = [];
         $vendorNames = [];
@@ -40,113 +42,179 @@ class SmartController extends Controller
         foreach ($vendors as $vendor) {
             $vendorNames[] = $vendor->namaVendor;
 
-            // --- Delivery Time: rata-rata selisih tanggal_terima - tanggalPO
-            $deliveryData = DB::table('purchase_orders as po')
+            $poIds = DB::table('purchase_orders as po')
+                ->join('purchase_order_items as poi', 'po.idPurchaseOrder', '=', 'poi.purchaseOrderId')
+                ->where('po.vendorId', $vendor->idVendor)
+                ->where('poi.materialId', $materialId)
+                ->pluck('po.idPurchaseOrder');
+
+            // DELIVERY TIME
+            $deliveryAvg = DB::table('purchase_order_items as poi')
+                ->join('purchase_orders as po', 'poi.purchaseOrderId', '=', 'po.idPurchaseOrder')
                 ->join('goods_receipts as gr', 'gr.purchaseOrderId', '=', 'po.idPurchaseOrder')
-                ->where('po.vendorId', $vendor->id)
-                ->select(DB::raw('DATEDIFF(gr.tanggal_terima, po.tanggalPO) as delivery_days'))
-                ->get();
-            $deliveryAvg = $deliveryData->avg('delivery_days') ?? 0;
-
-            // --- Kualitas: rata-rata qty_sesuai / qty_po
-            $kualitasData = DB::table('goods_receipts_items as gri')
-                ->join('goods_receipts as gr', 'gri.goodsReceiptId', '=', 'gr.idGoodsReceipt')
-                ->where('gr.vendor_id', $vendor->id)
-                ->select(DB::raw('IFNULL(qty_sesuai / NULLIF(qty_po, 0), 0) as kualitas'))
-                ->get();
-            $kualitasAvg = $kualitasData->avg('kualitas') ?? 0;
-
-            // --- Respon NC: rata-rata waktu respon (selisih menit)
-            $responWaktu = 0;
-            $responCount = 0;
-            $ncGrouped = ChatMessage::where('to_id', $vendor->id)->orWhere('from_id', $vendor->id)
+                ->whereIn('po.idPurchaseOrder', $poIds)
+                ->select(DB::raw('DATEDIFF(gr.tanggal_terima, poi.batasDiterima) as delivery_days'))
                 ->get()
-                ->groupBy('non_conformance_id');
+                ->avg('delivery_days');
 
-            foreach ($ncGrouped as $messages) {
-                $adminMsg = $messages->where('from_id', 1)->sortBy('created_at')->first();
-                $vendorMsg = $messages->where('from_id', $vendor->id)->sortBy('created_at')->first();
-
-                if ($adminMsg && $vendorMsg) {
-                    $diff = abs(strtotime($vendorMsg->created_at) - strtotime($adminMsg->created_at));
-                    $responWaktu += $diff / 60; // in minutes
-                    $responCount++;
-                }
+            $deliveryScore = 0;
+            if ($deliveryAvg !== null) {
+                $deliveryScore = match (true) {
+                    $deliveryAvg <= 0 => $this->getSubKriteriaScore(1, 'Tepat waktu atau lebih cepat'),
+                    $deliveryAvg <= 14 => $this->getSubKriteriaScore(1, 'Terlambat 1-14 hari'),
+                    default => $this->getSubKriteriaScore(1, 'Terlambat >14 hari'),
+                };
             }
-            $responAvg = $responCount > 0 ? $responWaktu / $responCount : 0;
 
-            // --- Monitoring: jumlah update Progress
-            $monitoringCount = VendorUpdate::where('vendor_id', $vendor->id)
+            // MONITORING
+            $monitoringCount = DB::table('vendor_updates')
+                ->whereIn('purchase_order_id', $poIds)
+                ->where('vendor_id', $vendor->idVendor)
                 ->where('jenis_update', 'Progress')
                 ->count();
 
-            // --- Pembatalan: 1 jika ada jenis_update Dibatalkan, 0 jika tidak
-            $batalCount = VendorUpdate::where('vendor_id', $vendor->id)
+            $monitoringScore = match (true) {
+                $monitoringCount >= 3 => $this->getSubKriteriaScore(2, 'Respon Baik'),
+                $monitoringCount == 2 => $this->getSubKriteriaScore(2, 'Respon Cukup'),
+                $monitoringCount == 1 => $this->getSubKriteriaScore(2, 'Respon Buruk'),
+                default => 0,
+            };
+
+            // KUALITAS
+            $kualitasAvg = DB::table('goods_receipts_items as gri')
+                ->join('goods_receipts as gr', 'gri.goodsReceiptId', '=', 'gr.idGoodsReceipt')
+                ->whereIn('gr.purchaseOrderId', $poIds)
+                ->where('gri.materialId', $materialId)
+                ->select(DB::raw('IFNULL(CAST(gri.qty_sesuai AS DECIMAL(10,2)) / NULLIF(CAST(gri.qty_po AS DECIMAL(10,2)), 0), 0) as kualitas'))
+                ->get()
+                ->avg('kualitas');
+
+            Log::info('AVG Kualitas', ['value' => $kualitasAvg]);
+
+            $kualitasScore = 0;
+            if ($kualitasAvg !== null) {
+                $kualitasScore = match (true) {
+                    $kualitasAvg >= 1 => $this->getSubKriteriaScore(3, 'Sangat Baik (100%)'),
+                    $kualitasAvg >= 0.81 => $this->getSubKriteriaScore(3, 'Cukup (81%–99%)'), // benar
+                    default => $this->getSubKriteriaScore(3, 'Kurang (<80%)'),
+                };
+            }
+
+
+
+            // RESPON NC (berdasarkan material dan vendor)
+            // RESPON NC (berdasarkan material dan vendor user_id)
+            $responWaktu = 0;
+            $responCount = 0;
+
+            // Ambil user_id dari vendor
+            $vendorUserId = $vendor->user_id; // pastikan kolom ini ada di tabel vendors
+
+            // Ambil semua NC ID berdasarkan material
+            $ncIds = DB::table('non_conformances')
+                ->join('goods_receipts_items as gri', 'gri.idGoodReceiptsItem', '=', 'non_conformances.goods_receipt_item_id')
+                ->where('gri.materialId', $materialId)
+                ->pluck('non_conformances.idNonConformance');
+
+            // Ambil semua chat yang relevan berdasarkan user_id vendor & NC ID
+            $ncGrouped = ChatMessage::where(function ($query) use ($vendorUserId) {
+                $query->where('to_id', $vendorUserId)
+                    ->orWhere('from_id', $vendorUserId);
+            })
+                ->whereIn('non_conformance_id', $ncIds)
+                ->orderBy('created_at')
+                ->get()
+                ->groupBy('non_conformance_id');
+
+            // Proses tiap grup NC
+            foreach ($ncGrouped as $ncId => $messages) {
+                // Temukan pesan pertama dari admin (from_id = 1)
+                $adminMsg = $messages->firstWhere('from_id', 1);
+
+                // Temukan pesan vendor pertama setelah adminMsg
+                $vendorMsg = $messages
+                    ->where('from_id', $vendorUserId)
+                    ->filter(fn($msg) => $adminMsg && $msg->created_at > $adminMsg->created_at)
+                    ->sortBy('created_at')
+                    ->first();
+
+                // Jika ada kedua pesan, hitung selisih waktunya
+                if ($adminMsg && $vendorMsg) {
+                    $diff = strtotime($vendorMsg->created_at) - strtotime($adminMsg->created_at);
+                    $responWaktu += $diff / 60; // dalam menit
+                    $responCount++;
+
+                    Log::info('NC ID', ['id' => $ncId]);
+                    Log::info('Admin Msg', ['msg' => $adminMsg]);
+                    Log::info('Vendor Msg', ['msg' => $vendorMsg]);
+                }
+            }
+
+            // Hitung skor respon NC
+            $responScore = 0;
+            if ($responCount > 0) {
+                $responAvg = $responWaktu / $responCount;
+                $responScore = match (true) {
+                    $responAvg <= 60 * 24 => $this->getSubKriteriaScore(4, 'Respon 1 hari'),
+                    $responAvg <= 60 * 72 => $this->getSubKriteriaScore(4, 'Respon 3 hari'),
+                    default => $this->getSubKriteriaScore(4, 'Respon >5 hari'),
+                };
+            }
+            // PEMBATALAN
+            $batalUpdate = VendorUpdate::where('vendor_id', $vendor->idVendor)
+                ->whereIn('purchase_order_id', $poIds)
                 ->where('jenis_update', 'Dibatalkan')
-                ->count();
-            $batalScore = $batalCount > 0 ? 1 : 0;
+                ->orderByDesc('created_at')
+                ->first();
 
-            $matrix[] = [
-                round($deliveryAvg, 2),
-                round($kualitasAvg, 2),
-                round($responAvg, 2),
-                round($monitoringCount, 2),
-                round($batalScore, 2),
-            ];
-        }
-
-        if (collect($matrix)->flatten()->sum() == 0) {
-            Log::debug('SMART process result:', $matrix);
-
-            return redirect()->route('rekomendasi.index')->with('error', 'Data vendor belum lengkap untuk dilakukan perhitungan.');
-        }
-
-        // --- Nilai bobot dan jenis subkriteria
-        $weights = [0.25, 0.25, 0.2, 0.2, 0.1]; // bisa disesuaikan
-        $types = [1, 1, 1, 1, -1]; // cost/benefit
-
-        $subcriteria = ['delivery_time', 'kualitas', 'respon_nc', 'monitoring', 'pembatalan'];
-
-        // Cegah pembagian nol
-        $columnSums = array_fill(0, count($matrix[0]), 0);
-        foreach ($matrix as $row) {
-            foreach ($row as $i => $val) {
-                $columnSums[$i] += $val;
+            $batalScore = 0;
+            if ($batalUpdate) {
+                switch ($batalUpdate->keterangan) {
+                    case 'reka':
+                        $batalScore = $this->getSubKriteriaScore(5, 'Karena pertimbangan REKA');
+                        break;
+                    case 'buruk':
+                        $batalScore = $this->getSubKriteriaScore(5, 'Karena Respon Vendor yang buruk');
+                        break;
+                    case 'gagal':
+                        $batalScore = $this->getSubKriteriaScore(5, 'Karena Vendor Gagal memenuhi kewajibannya');
+                        break;
+                }
             }
-        }
-        foreach ($columnSums as $i => $sum) {
-            if ($sum == 0) $columnSums[$i] = 1;
-        }
-        $normMatrix = [];
-        foreach ($matrix as $row) {
-            $normRow = [];
-            foreach ($row as $i => $val) {
-                $normRow[] = $val / $columnSums[$i];
-            }
-            $normMatrix[] = $normRow;
+
+            $matrix[] = [$deliveryScore, $monitoringScore, $kualitasScore, $responScore, $batalScore];
         }
 
-        // Jalankan Python SMART
+        if (empty($matrix)) {
+            Log::warning('SMART: Matrix kosong, proses dihentikan');
+            return redirect()->back()->with('error', 'Data penilaian vendor tidak tersedia.');
+        }
+
+        $weights = [0.25, 0.2, 0.25, 0.2, 0.1];
+        $types = [1, 1, 1, 1, -1];
+        $subcriteria = ['delivery_time', 'monitoring', 'kualitas', 'respon_nc', 'pembatalan'];
+
         $pythonPath = 'C:\\Python312\\python.exe';
         $scriptPath = base_path('resources/python/smart_mode_args.py');
+
+        $data = [
+            'matrix' => $matrix,
+            'weights' => $weights,
+            'types' => $types,
+            'subcriteria' => $subcriteria,
+        ];
 
         $process = new Process([
             $pythonPath,
             $scriptPath,
-            '--matrix',
-            json_encode($normMatrix),
-            '--weights',
-            json_encode($weights),
-            '--types',
-            json_encode($types),
-            '--subcriteria',
-            json_encode($subcriteria),
+            '--json',
+            json_encode($data)
         ], dirname($scriptPath));
 
         $process->run();
 
         if (!$process->isSuccessful()) {
-            Log::error("Python SMART Error: " . $process->getErrorOutput());
+            Log::error('SMART Python error', ['error' => $process->getErrorOutput()]);
             throw new ProcessFailedException($process);
         }
 
@@ -154,12 +222,27 @@ class SmartController extends Controller
         $result['vendor_names'] = $vendorNames;
         $result['matrix'] = $matrix;
 
-        Log::debug('SMART process result:', $result);
+        return view('admin.rekomendasi.index', [
+            'result' => $result,
+            'vendors' => Vendor::paginate(10),
+            'materials' => Material::all(),
+            'selectedMaterialId' => $materialId,
+        ]);
+    }
 
-        $vendors = Vendor::paginate(10);
-        $materials = Material::all();
-        $selectedMaterialId = $request->input('material_id');
+    private function getSubKriteriaScore($kriteriaId, $namaSubKriteria)
+    {
+        $sub = SubKriteria::where('kriteriaId', $kriteriaId)
+            ->whereRaw('LOWER(namaSubKriteria) = ?', [strtolower($namaSubKriteria)])
+            ->first();
 
-        return view('admin.rekomendasi.index', compact('result', 'vendors', 'materials', 'selectedMaterialId'));
+        if (!$sub) {
+            Log::warning("Subkriteria not found", [
+                'kriteriaId' => $kriteriaId,
+                'namaSubKriteria' => $namaSubKriteria
+            ]);
+        }
+
+        return $sub->skorSubKriteria ?? 0;
     }
 }

@@ -92,7 +92,7 @@
             </table>
         </div>
 
-        <div class="mt-4 flex justify-center">
+        <div class="mt-4 ">
             {{ $order->appends(request()->query())->links() }}
         </div>
     </div>

@@ -65,6 +65,41 @@
             <?php echo e($vendors->withQueryString()->links()); ?>
 
         </div>
+
+        <!-- SMART Results -->
+        <?php if(isset($result)): ?>
+            <div class="mt-8">
+                <h2 class="text-xl font-bold mb-4">Hasil Perhitungan SMART</h2>
+                <table class="table-auto border w-full mb-6">
+                    <thead class="bg-gray-200">
+                        <tr>
+                            <th class="px-4 py-2">Alternatif</th>
+                            <?php $__currentLoopData = $result['subcriteria']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sub): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <th class="px-4 py-2"><?php echo e($sub); ?></th>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <th class="px-4 py-2">Skor</th>
+                            <th class="px-4 py-2">Peringkat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $__currentLoopData = $result['scores']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $score): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <tr>
+                                <td class="border px-4 py-2">Alternatif <?php echo e($i + 1); ?>
+
+                                    (<?php echo e($result['vendor_names'][$i] ?? 'Unknown'); ?>)</td>
+                                <?php $__currentLoopData = $result['matrix'][$i]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <td class="border px-4 py-2"><?php echo e($value); ?></td>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <td class="border px-4 py-2"><?php echo e($score); ?></td>
+                                <td class="border px-4 py-2"><?php echo e($result['ranking'][$i]); ?></td>
+                            </tr>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </tbody>
+                </table>
+
+                <h3 class="text-lg font-semibold">Alternatif Terbaik: <?php echo e($result['best_alternative']); ?></h3>
+            </div>
+        <?php endif; ?>
     </div>
 <?php $__env->stopSection(); ?>
 

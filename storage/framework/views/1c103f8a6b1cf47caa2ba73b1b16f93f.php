@@ -1,23 +1,40 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Tambah Kedatangan'); ?>
 
-@section('title', 'Tambah Kedatangan')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="max-w-6xl mx-auto px-6 py-10">
-        @php
+        <?php
             $breadcrumbItems = [
                 ['label' => 'Home', 'url' => ''],
                 ['label' => 'Kelola Kedatangan', 'url' => route('kedatangan.index')],
                 ['label' => 'Add Kelola Kedatangan', 'url' => ''],
             ];
-        @endphp
-        <x-breadcrumb :items="$breadcrumbItems" />
+        ?>
+        <?php if (isset($component)) { $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.breadcrumb','data' => ['items' => $breadcrumbItems]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? (array) $attributes->getIterator() : [])); ?>
+<?php $component->withName('breadcrumb'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag && $constructor = (new ReflectionClass(Illuminate\View\AnonymousComponent::class))->getConstructor()): ?>
+<?php $attributes = $attributes->except(collect($constructor->getParameters())->map->getName()->all()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['items' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($breadcrumbItems)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $attributes = $__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__attributesOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2)): ?>
+<?php $component = $__componentOriginale19f62b34dfe0bfdf95075badcb45bc2; ?>
+<?php unset($__componentOriginale19f62b34dfe0bfdf95075badcb45bc2); ?>
+<?php endif; ?>
 
         <h1 class="text-3xl font-bold text-gray-800 mb-8">Form Tambah Kedatangan</h1>
 
-        <form id="goods_receipt_form" action="{{ route('goods-receipts.store') }}" method="POST"
+        <form id="goods_receipt_form" action="<?php echo e(route('goods-receipts.store')); ?>" method="POST"
             class="space-y-6 bg-white p-8 shadow rounded-lg">
-            @csrf
+            <?php echo csrf_field(); ?>
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
                     <label class="block font-semibold mb-1 text-gray-700">No Dokumen</label>
@@ -39,11 +56,12 @@
                     <select id="purchase_order_select" name="purchase_order_id"
                         class="w-full border border-gray-300 rounded px-4 py-2" required>
                         <option value="">Pilih Perusahaan</option>
-                        @foreach ($orders as $order)
-                            <option value="{{ $order->idPurchaseOrder }}">
-                                {{ $order->vendor->namaVendor ?? 'Unknown Vendor' }} - PO: {{ $order->noPO }}
+                        <?php $__currentLoopData = $orders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($order->idPurchaseOrder); ?>">
+                                <?php echo e($order->vendor->namaVendor ?? 'Unknown Vendor'); ?> - PO: <?php echo e($order->noPO); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
                 <div>
@@ -71,7 +89,7 @@
                             </tr>
                         </thead>
                         <tbody id="items_table_body">
-                            {{-- Items will be dynamically loaded here --}}
+                            
                         </tbody>
 
                     </table>
@@ -79,7 +97,7 @@
             </div>
 
             <div class="flex justify-end gap-4">
-                <a href="{{ route('goods-receipts.index') }}"
+                <a href="<?php echo e(route('goods-receipts.index')); ?>"
                     class="inline-flex items-center px-6 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 shadow">
                     ← Kembali
                 </a>
@@ -93,7 +111,7 @@
         </form>
     </div>
 
-    {{-- Javascript for dynamic loading of items based on selected purchase order --}}
+    
     <script>
         document.getElementById('purchase_order_select').addEventListener('change', function() {
             const purchaseOrderId = this.value;
@@ -229,4 +247,6 @@
             }
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Aplikasi\Laragon\laragon\www\skripsi_kindyv2\Sistem_Pemilihan_Vendor\resources\views/admin/kelola_kedatangan/add.blade.php ENDPATH**/ ?>

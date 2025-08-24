@@ -24,6 +24,10 @@ class DatabaseSeeder extends Seeder
             GoodsReceiptsItemsSeeder::class,
             RfqsSeeder::class,
             KriteriaSeeder::class,
+            SubKriteriaSeeder::class,
+            ChatMessagesSeeder::class,
+            NonConformancesSeeder::class,
+            VendorUpdatesSeeder::class,
         ]);
     }
 }

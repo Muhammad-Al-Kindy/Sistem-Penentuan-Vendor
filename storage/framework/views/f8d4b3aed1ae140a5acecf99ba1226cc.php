@@ -1,16 +1,14 @@
-@extends('layouts.app')
+<?php $__env->startSection('title', 'Progress Purchase Order'); ?>
 
-@section('title', 'Progress Purchase Order')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="max-w-5xl mx-auto px-4 py-8">
         <h1 class="text-2xl font-bold mb-6">Progress Purchase Order</h1>
 
         <div class="bg-white p-6 rounded shadow mb-6">
             <h2 class="text-lg font-semibold mb-2">Detail PO</h2>
-            <p><strong>No PO:</strong> {{ $order->noPO }}</p>
-            <p><strong>Tanggal PO:</strong> {{ $order->tanggalPO->format('Y-m-d') }}</p>
-            <p><strong>Vendor:</strong> {{ $order->vendor->namaVendor ?? '-' }}</p>
+            <p><strong>No PO:</strong> <?php echo e($order->noPO); ?></p>
+            <p><strong>Tanggal PO:</strong> <?php echo e($order->tanggalPO->format('Y-m-d')); ?></p>
+            <p><strong>Vendor:</strong> <?php echo e($order->vendor->namaVendor ?? '-'); ?></p>
         </div>
 
         <div class="bg-white p-6 rounded shadow">
@@ -24,32 +22,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($order->vendorUpdates as $update)
+                    <?php $__empty_1 = true; $__currentLoopData = $order->vendorUpdates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $update): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr>
                             <td class="border px-4 py-2">
-                                {{ \Carbon\Carbon::parse($update->tanggal_update)->format('d M Y') }}</td>
-                            <td class="border px-4 py-2">{{ $update->jenis_update }}</td>
+                                <?php echo e(\Carbon\Carbon::parse($update->tanggal_update)->format('d M Y')); ?></td>
+                            <td class="border px-4 py-2"><?php echo e($update->jenis_update); ?></td>
                             <td class="border px-4 py-2">
-                                @if ($update->dokumen)
-                                    <a href="{{ asset('storage/vendor_updates/' . $update->dokumen) }}" target="_blank"
+                                <?php if($update->dokumen): ?>
+                                    <a href="<?php echo e(asset('storage/vendor_updates/' . $update->dokumen)); ?>" target="_blank"
                                         class="text-blue-600 underline">Lihat Dokumen</a>
-                                @else
+                                <?php else: ?>
                                     <span class="text-gray-500">Tidak ada</span>
-                                @endif
+                                <?php endif; ?>
                             </td>
                         </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
                             <td colspan="3" class="text-center py-2 text-gray-500">Belum ada riwayat update.</td>
                         </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
-            @if (!isset($latestUpdate) || $latestUpdate->jenis_update !== 'Dibatalkan')
-                <form action="{{ route('purchase.cancel', $order->idPurchaseOrder) }}" method="POST"
+            <?php if(!isset($latestUpdate) || $latestUpdate->jenis_update !== 'Dibatalkan'): ?>
+                <form action="<?php echo e(route('purchase.cancel', $order->idPurchaseOrder)); ?>" method="POST"
                     onsubmit="return confirm('Yakin ingin membatalkan purchase order ini?')" class="mt-6 space-y-4">
-                    @csrf
-                    @method('PATCH')
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('PATCH'); ?>
 
                     <div>
                         <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-1">Alasan
@@ -67,10 +65,12 @@
                         Batalkan Purchase Order
                     </button>
                 </form>
-            @endif
+            <?php endif; ?>
 
 
 
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Aplikasi\Laragon\laragon\www\skripsi_kindyv2\Sistem_Pemilihan_Vendor\resources\views/admin/purchase_order/progress.blade.php ENDPATH**/ ?>
