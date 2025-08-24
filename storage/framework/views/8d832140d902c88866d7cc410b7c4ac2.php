@@ -27,15 +27,10 @@
                         </option>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
-
-                <!-- Hidden inputs for alternatives, weights, subcriteria -->
-                <input type="hidden" name="alternatives" value="[]">
-                <input type="hidden" name="weights" value="[]">
-                <input type="hidden" name="subcriteria" value="{}">
             </form>
         </div>
 
-        <!-- Table -->
+        <!-- Tabel Daftar Vendor -->
         <div class="bg-white rounded-lg shadow overflow-x-auto mt-6">
             <table class="min-w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-100 text-gray-600 uppercase tracking-wider">
@@ -45,28 +40,18 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <?php $__empty_1 = true; $__currentLoopData = $vendors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $vendor): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4"><?php echo e($vendors->firstItem() + $index); ?></td>
-                            <td class="px-6 py-4"><?php echo e($vendor->namaVendor); ?></td>
-                        </tr>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                    
+                    <?php $__currentLoopData = $scoredVendors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
-                            <td colspan="2" class="px-6 py-4 text-center text-gray-500">Tidak ada data rekomendasi untuk
-                                barang ini.</td>
+                            <td class="px-6 py-4"><?php echo e($i + 1); ?></td>
+                            <td class="px-6 py-4"><?php echo e($item['vendor']->namaVendor); ?></td>
                         </tr>
-                    <?php endif; ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="mt-6 flex justify-end">
-            <?php echo e($vendors->withQueryString()->links()); ?>
-
-        </div>
-
-        <!-- SMART Results -->
+        <!-- Tabel Hasil SMART -->
         <?php if(isset($result)): ?>
             <div class="mt-8">
                 <h2 class="text-xl font-bold mb-4">Hasil Perhitungan SMART</h2>
@@ -84,9 +69,9 @@
                     <tbody>
                         <?php $__currentLoopData = $result['scores']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $score): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
-                                <td class="border px-4 py-2">Alternatif <?php echo e($i + 1); ?>
-
-                                    (<?php echo e($result['vendor_names'][$i] ?? 'Unknown'); ?>)</td>
+                                <td class="border px-4 py-2">
+                                    Alternatif <?php echo e($i + 1); ?> (<?php echo e($result['vendor_names'][$i] ?? 'Unknown'); ?>)
+                                </td>
                                 <?php $__currentLoopData = $result['matrix'][$i]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <td class="border px-4 py-2"><?php echo e($value); ?></td>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -97,7 +82,10 @@
                     </tbody>
                 </table>
 
-                <h3 class="text-lg font-semibold">Alternatif Terbaik: <?php echo e($result['best_alternative']); ?></h3>
+                <h3 class="text-lg font-semibold">
+                    Alternatif Terbaik: <?php echo e($result['best_alternative']); ?>
+
+                </h3>
             </div>
         <?php endif; ?>
     </div>

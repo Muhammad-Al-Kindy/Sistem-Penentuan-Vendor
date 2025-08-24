@@ -28,15 +28,10 @@
                         </option>
                     @endforeach
                 </select>
-
-                <!-- Hidden inputs for alternatives, weights, subcriteria -->
-                <input type="hidden" name="alternatives" value="[]">
-                <input type="hidden" name="weights" value="[]">
-                <input type="hidden" name="subcriteria" value="{}">
             </form>
         </div>
 
-        <!-- Table -->
+        <!-- Tabel Daftar Vendor -->
         <div class="bg-white rounded-lg shadow overflow-x-auto mt-6">
             <table class="min-w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-100 text-gray-600 uppercase tracking-wider">
@@ -46,27 +41,29 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($vendors as $index => $vendor)
+                    {{-- @forelse($vendors as $index => $vendor)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">{{ $vendors->firstItem() + $index }}</td>
+                            <td class="px-6 py-4">{{ $index + 1 }}</td>
                             <td class="px-6 py-4">{{ $vendor->namaVendor }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="2" class="px-6 py-4 text-center text-gray-500">Tidak ada data rekomendasi untuk
-                                barang ini.</td>
+                            <td colspan="2" class="px-6 py-4 text-center text-gray-500">
+                                Tidak ada data rekomendasi untuk barang ini.
+                            </td>
                         </tr>
-                    @endforelse
+                    @endforelse --}}
+                    @foreach ($scoredVendors as $i => $item)
+                        <tr>
+                            <td class="px-6 py-4">{{ $i + 1 }}</td>
+                            <td class="px-6 py-4">{{ $item['vendor']->namaVendor }}</td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="mt-6 flex justify-end">
-            {{ $vendors->withQueryString()->links() }}
-        </div>
-
-        <!-- SMART Results -->
+        <!-- Tabel Hasil SMART -->
         @if (isset($result))
             <div class="mt-8">
                 <h2 class="text-xl font-bold mb-4">Hasil Perhitungan SMART</h2>
@@ -84,8 +81,9 @@
                     <tbody>
                         @foreach ($result['scores'] as $i => $score)
                             <tr>
-                                <td class="border px-4 py-2">Alternatif {{ $i + 1 }}
-                                    ({{ $result['vendor_names'][$i] ?? 'Unknown' }})</td>
+                                <td class="border px-4 py-2">
+                                    Alternatif {{ $i + 1 }} ({{ $result['vendor_names'][$i] ?? 'Unknown' }})
+                                </td>
                                 @foreach ($result['matrix'][$i] as $value)
                                     <td class="border px-4 py-2">{{ $value }}</td>
                                 @endforeach
@@ -96,7 +94,9 @@
                     </tbody>
                 </table>
 
-                <h3 class="text-lg font-semibold">Alternatif Terbaik: {{ $result['best_alternative'] }}</h3>
+                <h3 class="text-lg font-semibold">
+                    Alternatif Terbaik: {{ $result['best_alternative'] }}
+                </h3>
             </div>
         @endif
     </div>
