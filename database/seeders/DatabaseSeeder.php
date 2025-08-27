@@ -20,14 +20,14 @@ class DatabaseSeeder extends Seeder
             MaterialVendorPriceSeeder::class,
             PurchaseOrderSeeder::class,
             PurchaseOrderItemSeeder::class,
-            GoodsReceiptsSeeder::class,
-            GoodsReceiptsItemsSeeder::class,
+            // GoodsReceiptsSeeder::class,
+            // GoodsReceiptsItemsSeeder::class,
             RfqsSeeder::class,
             KriteriaSeeder::class,
             SubKriteriaSeeder::class,
-            ChatMessagesSeeder::class,
-            NonConformancesSeeder::class,
-            VendorUpdatesSeeder::class,
+            // ChatMessagesSeeder::class,
+            // NonConformancesSeeder::class,
+            // VendorUpdatesSeeder::class,
         ]);
     }
 }

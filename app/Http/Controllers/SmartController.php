@@ -36,22 +36,29 @@ class SmartController extends Controller
 
             foreach ($poList as $poId) {
                 // DELIVERY TIME
-                $deliveryAvg = DB::table('purchase_order_items as poi')
+                $deliveryDays = DB::table('purchase_order_items as poi')
                     ->join('goods_receipts as gr', 'gr.purchaseOrderId', '=', 'poi.purchaseOrderId')
                     ->where('poi.purchaseOrderId', $poId)
+                    ->whereNotNull('gr.tanggal_terima')  // pastikan tidak null
+                    ->whereNotNull('poi.batasDiterima')  // pastikan tidak null
                     ->select(DB::raw('DATEDIFF(gr.tanggal_terima, poi.batasDiterima) as delivery_days'))
                     ->pluck('delivery_days')
                     ->filter()
-                    ->avg();
+                    ->map(fn($v) => (int)$v)
+                    ->toArray();
 
-                if ($deliveryAvg !== null) {
-                    $deliveryAvg = (float) $deliveryAvg;
+                if (!empty($deliveryDays)) {
+                    $deliveryAvg = collect($deliveryDays)->avg();
+                    Log::info('Nilai rata-rata delivery:', ['deliveryAvg' => $deliveryAvg]);
+
                     $deliveryScores[] = match (true) {
                         $deliveryAvg <= 0 => $this->getSubKriteriaScore(1, 'Tepat waktu atau lebih cepat'),
                         $deliveryAvg <= 14 => $this->getSubKriteriaScore(1, 'Terlambat 1–14 hari'),
                         default => $this->getSubKriteriaScore(1, 'Terlambat >14 hari'),
                     };
                 }
+
+
 
                 // MONITORING
                 $monitoringCount = DB::table('vendor_updates')
@@ -236,26 +243,36 @@ class SmartController extends Controller
             $batalScores = [];
 
             foreach ($poList as $poId) {
-                // DELIVERY TIME per PO
-                $deliveryAvg = DB::table('purchase_order_items as poi')
+                // === DELIVERY TIME ===
+                $deliveryData = DB::table('purchase_order_items as poi')
+                    ->join('purchase_orders as po', 'poi.purchaseOrderId', '=', 'po.idPurchaseOrder')
                     ->join('goods_receipts as gr', 'gr.purchaseOrderId', '=', 'poi.purchaseOrderId')
+                    ->join('goods_receipts_items as gri', function ($join) {
+                        $join->on('gri.goodsReceiptId', '=', 'gr.idGoodsReceipt')
+                            ->on('gri.materialId', '=', 'poi.materialId');
+                    })
                     ->where('poi.purchaseOrderId', $poId)
                     ->where('poi.materialId', $materialId)
+                    ->whereNotNull('gr.tanggal_terima')
+                    ->whereNotNull('poi.batasDiterima')
                     ->select(DB::raw('DATEDIFF(gr.tanggal_terima, poi.batasDiterima) as delivery_days'))
-                    ->pluck('delivery_days')
-                    ->filter()
-                    ->avg();
+                    ->pluck('delivery_days');
 
-                if ($deliveryAvg !== null) {
-                    $deliveryAvg = (float) $deliveryAvg;
-                    $deliveryScores[] = match (true) {
-                        $deliveryAvg <= 0 => $this->getSubKriteriaScore(1, 'Tepat waktu atau lebih cepat'),
-                        $deliveryAvg <= 14 => $this->getSubKriteriaScore(1, 'Terlambat 1–14 hari'),
-                        default => $this->getSubKriteriaScore(1, 'Terlambat >14 hari'),
-                    };
+                if ($deliveryData->isEmpty()) {
+                    Log::warning("SKIP: Tidak ada tanggal_terima/batasDiterima yang valid untuk PO ID $poId dan material $materialId");
+                    continue;
                 }
 
-                // MONITORING per PO
+                $deliveryAvg = $deliveryData->avg();
+                Log::info("Nilai rata-rata delivery untuk PO $poId: $deliveryAvg");
+
+                $deliveryScores[] = match (true) {
+                    $deliveryAvg <= 0 => 3,
+                    $deliveryAvg <= 14 => 2,
+                    default => 1,
+                };
+
+                // === MONITORING ===
                 $monitoringCount = DB::table('vendor_updates')
                     ->where('purchase_order_id', $poId)
                     ->where('vendor_id', $vendor->idVendor)
@@ -269,7 +286,7 @@ class SmartController extends Controller
                     default => 0,
                 };
 
-                // KUALITAS per PO
+                // === KUALITAS ===
                 $kualitas = DB::table('goods_receipts_items as gri')
                     ->join('goods_receipts as gr', 'gri.goodsReceiptId', '=', 'gr.idGoodsReceipt')
                     ->where('gr.purchaseOrderId', $poId)
@@ -286,7 +303,7 @@ class SmartController extends Controller
                     };
                 }
 
-                // RESPON NC per PO
+                // === RESPON NC ===
                 $vendorUserId = $vendor->user_id;
                 $ncIds = DB::table('non_conformances')
                     ->join('goods_receipts_items as gri', 'gri.idGoodReceiptsItem', '=', 'non_conformances.goods_receipt_item_id')
@@ -330,7 +347,7 @@ class SmartController extends Controller
                     };
                 }
 
-                // PEMBATALAN per PO
+                // === PEMBATALAN ===
                 $batalUpdate = VendorUpdate::where('vendor_id', $vendor->idVendor)
                     ->where('purchase_order_id', $poId)
                     ->where('jenis_update', 'Dibatalkan')
@@ -347,6 +364,7 @@ class SmartController extends Controller
                 }
             }
 
+            // Final skor per vendor
             $matrix[] = [
                 collect($deliveryScores)->avg() ?? 0,
                 collect($monitoringScores)->avg() ?? 0,
@@ -387,17 +405,14 @@ class SmartController extends Controller
             ->mapWithKeys(fn($item, $rank) => [$item['index'] => $rank + 1]);
 
         $result['ranking'] = array_map(fn($i) => $ranking[$i], array_keys($result['scores']));
-        $scoredVendors = collect($vendors)
-            ->map(function ($vendor, $i) use ($result) {
-                return [
-                    'vendor' => $vendor,
-                    'score' => $result['scores'][$i] ?? 0,
-                    'ranking' => $result['ranking'][$i] ?? null,
-                ];
-            })
-            ->sortBy('ranking')
-            ->values();
 
+        $scoredVendors = collect($vendors)->map(function ($vendor, $i) use ($result) {
+            return [
+                'vendor' => $vendor,
+                'score' => $result['scores'][$i] ?? 0,
+                'ranking' => $result['ranking'][$i] ?? null,
+            ];
+        })->sortBy('ranking')->values();
 
         return view('admin.rekomendasi.index', [
             'result' => $result,
@@ -408,19 +423,30 @@ class SmartController extends Controller
         ]);
     }
 
-    private function getSubKriteriaScore($kriteriaId, $namaSubKriteria)
-    {
-        $sub = SubKriteria::where('kriteriaId', $kriteriaId)
-            ->whereRaw('LOWER(namaSubKriteria) = ?', [strtolower($namaSubKriteria)])
-            ->first();
 
-        if (!$sub) {
-            Log::warning("Subkriteria not found", [
-                'kriteriaId' => $kriteriaId,
-                'namaSubKriteria' => $namaSubKriteria
-            ]);
+    public function getSubKriteriaScore($kriteriaId, $namaSubKriteria)
+    {
+        Log::info("Mencari sub kriteria: ID $kriteriaId, Nama '$namaSubKriteria'");
+
+        // Normalisasi: hapus spasi dan ubah strip panjang jadi pendek
+        $normalizedInput = strtolower(str_replace(['–', '—'], '-', trim($namaSubKriteria)));
+
+        // Ambil semua sub_kriteria untuk kriteriaId tersebut
+        $sub = DB::table('sub_kriterias')
+            ->where('kriteriaId', $kriteriaId)
+            ->get()
+            ->first(function ($item) use ($normalizedInput) {
+                // Normalisasi namaSubKriteria di DB untuk dibandingkan
+                $dbNormalized = strtolower(str_replace(['–', '—'], '-', trim($item->namaSubKriteria)));
+                return $dbNormalized === $normalizedInput;
+            });
+
+        if ($sub) {
+            Log::info('Sub kriteria ditemukan:', (array) $sub);
+        } else {
+            Log::warning("Sub kriteria TIDAK DITEMUKAN untuk: ID $kriteriaId, Nama '$namaSubKriteria'");
         }
 
-        return $sub->skorSubKriteria ?? 0;
+        return $sub ? $sub->skorSubKriteria : 0;
     }
 }
